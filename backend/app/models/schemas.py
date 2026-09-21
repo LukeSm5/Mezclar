@@ -1,18 +1,28 @@
-"""Placeholder request and response models for the backend."""
+"""Request and response models for game sessions."""
 
-from pydantic import BaseModel
+from typing import Literal
+
+from pydantic import BaseModel, ConfigDict, Field, JsonValue
 
 
-class GameSession(BaseModel):
-    """Placeholder model for a temporary game session."""
+class CreateSessionRequest(BaseModel):
+    model_config = ConfigDict(str_strip_whitespace=True, extra="forbid")
 
-    pass
+    host_name: str = Field(min_length=1)
+    settings: dict[str, JsonValue] = Field(default_factory=dict)
 
 
 class Player(BaseModel):
-    """Placeholder model for a player in a session."""
+    id: str
+    display_name: str
 
-    pass
+
+class GameSession(BaseModel):
+    join_code: str
+    host_name: str
+    status: Literal["lobby"] = "lobby"
+    players: list[Player] = Field(default_factory=list)
+    settings: dict[str, JsonValue] = Field(default_factory=dict)
 
 
 class Game(BaseModel):
