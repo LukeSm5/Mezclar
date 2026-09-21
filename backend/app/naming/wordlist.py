@@ -1,0 +1,2 @@
+ADJECTIVE_LIST = []
+NOUN_LIST = []
