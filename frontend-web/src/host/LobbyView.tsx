@@ -43,32 +43,19 @@ export default function LobbyView({
     };
   }, [localUrl]);
 
-  function getParticipantInitial(name: string) {
-    return name.trim().charAt(0).toUpperCase() || '?';
-  }
-
   return (
     <main className="lobby">
-      <section className="lobby-info" aria-labelledby="lobby-title">
-        <div className="lobby-details">
-          <p className="eyebrow">
-            <span className="eyebrow-dot" aria-hidden="true" />
-            Host lobby
-          </p>
+      <h1>{lobbyName}</h1>
 
-          <h1 id="lobby-title">{lobbyName}</h1>
-
-          <p className="lobby-instruction">
-            Share the code or let players scan the QR code to join.
-          </p>
-
-          <div className="join-code">
-            <p className="join-code-label">Join code</p>
-            <p className="code">{joinCode}</p>
-          </div>
+      <section className="lobby-top" aria-label="Lobby information">
+        <div className="join-code">
+          <h2>Join code</h2>
+          <p className="code">{joinCode}</p>
         </div>
 
-        <div className="qr-area">
+        <div className="qr-code">
+          <h2>QR code</h2>
+
           {qrCode ? (
             <img
               src={qrCode}
@@ -83,44 +70,20 @@ export default function LobbyView({
           )}
 
           <a href={localUrl}>{localUrl}</a>
-          <p className="muted qr-note">Local preview link</p>
         </div>
       </section>
 
       <section className="participants" aria-labelledby="participants-title">
-        <div className="participants-heading">
-          <div>
-            <p className="section-label">In the room</p>
-            <h2 id="participants-title">Participants</h2>
-          </div>
-
-          <span
-            className="count"
-            aria-label={`${participants.length} participants`}
-          >
-            {participants.length}
-          </span>
-        </div>
+        <h2 id="participants-title">
+          Participants ({participants.length})
+        </h2>
 
         {participants.length === 0 ? (
-          <div className="empty-state">
-            <div className="empty-state-icon" aria-hidden="true">
-              +
-            </div>
-            <p className="empty-state-title">No participants yet</p>
-            <p className="muted">
-              Participants will appear here when they join.
-            </p>
-          </div>
+          <p>No participants yet.</p>
         ) : (
-          <ul className="participant-list">
+          <ul>
             {participants.map((participant) => (
-              <li key={participant.id}>
-                <span className="participant-avatar" aria-hidden="true">
-                  {getParticipantInitial(participant.display_name)}
-                </span>
-                <span>{participant.display_name}</span>
-              </li>
+              <li key={participant.id}>{participant.display_name}</li>
             ))}
           </ul>
         )}
