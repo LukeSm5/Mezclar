@@ -6,3 +6,9 @@ def get_or_create_session(session_id: str) -> Session:
     if session_id not in _sessions:
         _sessions[session_id] = Session(session_id)
     return _sessions[session_id]
+
+def session_exists(session_id: str) -> bool:
+    return session_id in _sessions
+
+def get_session(session_id: str) -> Session | None:
+    return _sessions.get(session_id)

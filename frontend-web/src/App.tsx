@@ -4,12 +4,16 @@ import About from "./landing/About";
 import JoinScreen from "./player/JoinScreen";
 import CreateGame from "./host/CreateGame";
 import LobbyView from "./host/LobbyView";
+import PlayerLobby from "./player/PlayerLobby";
+import GameLanding from "./player/GameLanding";
 
 export default function App() {
   return (
     <Routes>
       <Route path="/" element={<LandingPage />} />
       <Route path="/join/:code" element={<JoinScreen />} />
+      <Route path="/player/:code" element={<PlayerLobby />} />
+      <Route path="/player/:code/game" element={<GameLanding />} />
       <Route path="/host/new" element={<CreateGame />} />
       <Route path="/host/lobby" element={<LobbyView />} />
       <Route path="/about" element={<About />} />

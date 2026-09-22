@@ -13,6 +13,8 @@ export default function CreateGame() {
   const navigate = useNavigate();
   const [gameId, setGameId] = useState("");
   const [options, setOptions] = useState<GameOptionValues>(defaultOptionValues);
+  const [isCreating, setIsCreating] = useState(false);
+  const [error, setError] = useState("");
 
   const selectedGame = GAMES.find((game) => game.id === gameId);
 
@@ -20,11 +22,43 @@ export default function CreateGame() {
     setOptions((previous) => ({ ...previous, [id]: value }));
   }
 
-  function handleStart() {
-    if (!selectedGame) return;
+  async function handleStart() {
+    if (!selectedGame || isCreating) return;
+
+    setIsCreating(true);
+    setError("");
+
+    try {
+
+      const response = await fetch("http://127.0.0.1:8000/session", {
+        method: "POST",
+      });
+
+      if (!response.ok) {
+        throw new Error(`Server returned status ${response.status}`);
+      }
+
+      const data: { session_id: string } = await response.json();
+
+      navigate("/host/lobby", {
+        state: {
+          sessionId: data.session_id,
+          gameId: selectedGame.id,
+          options,
+        },
+      });
+
+    } catch (error) {
+
+      console.error("Failed to create session:", error);
+      setError("Unable to create a game session. Please try again.");
+
+    } finally {
+      setIsCreating(false);
+    }
     // No session exists yet — the backend has no create-session endpoint, so
     // the chosen config rides along in router state for the lobby to show.
-    navigate("/host/lobby", { state: { gameId: selectedGame.id, options } });
+    // navigate("/host/lobby", { state: { gameId: selectedGame.id, options } });
   }
 
   return (
