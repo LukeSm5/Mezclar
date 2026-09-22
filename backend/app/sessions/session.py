@@ -4,9 +4,9 @@ from backend.app.sessions.player import Player
 class Session:
     def __init__(self, session_id: str):
         self.session_id = session_id
-        self.players = dict[str, "Player"] = {}
+        self.players: dict[str, "Player"] = {}
         self.auto_generate_names: bool = False
-        self.used_names = set[str] = set()
+        self.used_names: set[str] = set()
 
     def set_auto_generate(self, enabled: bool) -> None:
         self.auto_generate_names = enabled
