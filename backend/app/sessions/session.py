@@ -28,3 +28,17 @@ class Session:
             return name
 
         raise ValueError("Name must be provided or auto-generation must be enabled.")
+
+    def add_player(self, player_id: str, requested_name: str | None = None) -> Player:
+        name = self.assign_name(requested_name)
+        player = Player(player_id, name)
+        self.players[player_id] = player
+        return player
+
+    def remove_player(self, player_id: str) -> None:
+        if player_id in self.players:
+            player = self.players.pop(player_id)
+            self.remove_used_name(player.name)
+
+    def get_player(self, player_id: str) -> Player | None:
+        return self.players.get(player_id)
