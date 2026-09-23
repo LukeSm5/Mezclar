@@ -5,6 +5,18 @@ from typing import Literal
 from pydantic import BaseModel, ConfigDict, Field, JsonValue
 
 
+class GenerateNameResponse(BaseModel):
+    name: str
+
+
+class RegenerateNameRequest(BaseModel):
+    player_id: str
+
+
+class ToggleAutoNamesRequest(BaseModel):
+    enabled: bool
+
+
 class CreateSessionRequest(BaseModel):
     model_config = ConfigDict(str_strip_whitespace=True, extra="forbid")
 

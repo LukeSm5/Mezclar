@@ -1,10 +1,13 @@
-import { createRoot } from 'react-dom/client';
-import LobbyView from './host/LobbyView';
-import { generateJoinCode } from './utils/lobby';
-import './styles.css';
+import { StrictMode } from "react";
+import { createRoot } from "react-dom/client";
+import { BrowserRouter } from "react-router-dom";
+import App from "./App";
+import "./index.css";
 
-const demoJoinCode = generateJoinCode();
-
-createRoot(document.getElementById('root')!).render(
-  <LobbyView joinCode={demoJoinCode} />,
+createRoot(document.getElementById("root")!).render(
+  <StrictMode>
+    <BrowserRouter>
+      <App />
+    </BrowserRouter>
+  </StrictMode>,
 );

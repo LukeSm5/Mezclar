@@ -1,39 +1,43 @@
-# JavaScript dependencies
-node_modules/
-**/node_modules/
-
-# Frontend build output
-dist/
-**/dist/
-build/
-**/build/
-
-# Python caches and local environments
+# Python
 __pycache__/
 **/__pycache__/
 *.py[cod]
 .pytest_cache/
+.mypy_cache/
 .venv/
 venv/
 env/
+*.egg-info/
+coverage/
+htmlcov/
 
-# IDE and editor settings
+# Node
+node_modules/
+**/node_modules/
+dist/
+**/dist/
+dist-ssr/
+build/
+**/build/
+*.tsbuildinfo
+npm-debug.log*
+yarn-error.log*
+
+# Environment and secrets
+.env
+.env.*
+!.env.example
+
+# Editors
 .vscode/
 .idea/
 *.swp
 *.swo
 
-# Local environment and secrets
-.env
-.env.*
-!.env.example
-
-# Operating system files
+# OS
 .DS_Store
 Thumbs.db
 Desktop.ini
 
-# Logs and coverage output
+# Logs
 *.log
-coverage/
-htmlcov/

@@ -1,0 +1,39 @@
+:root {
+  --text: #ffffff;
+  --text-muted: rgba(255, 255, 255, 0.88);
+  --surface: rgba(0, 0, 0, 0.2);
+  --border: rgba(255, 255, 255, 0.42);
+  --border-focus: rgba(255, 255, 255, 0.95);
+  --accent: #ffffff;
+  --accent-hover: rgba(255, 255, 255, 0.88);
+  --accent-text: #9d174d;
+
+  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+  color-scheme: dark;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  color: var(--text);
+  -webkit-font-smoothing: antialiased;
+
+  background: linear-gradient(
+    135deg,
+    #ffb020 0%,
+    #ff7a1a 24%,
+    #ff3d6e 58%,
+    #ff14a8 84%,
+    #f000c8 100%
+  );
+  background-attachment: fixed;
+}

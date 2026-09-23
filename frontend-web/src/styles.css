@@ -1,35 +1,30 @@
-* {
-  box-sizing: border-box;
-}
-
-body {
-  margin: 0;
-  background: white;
-  color: black;
-  font-family: Arial, sans-serif;
-}
-
-a {
-  color: black;
-  overflow-wrap: anywhere;
-}
-
-h1,
-h2,
-p {
-  margin: 0;
-}
-
 .lobby {
   width: min(900px, 100%);
   margin: 0 auto;
   padding: 24px;
+  background: white;
+  color: black;
+}
+
+.lobby a {
+  color: black;
+  overflow-wrap: anywhere;
+}
+
+.lobby h1,
+.lobby h2,
+.lobby p {
+  margin: 0;
 }
 
 .lobby h1 {
   margin-bottom: 24px;
   font-size: 28px;
   font-weight: 400;
+}
+
+.lobby .lobby__game {
+  margin-bottom: 24px;
 }
 
 .lobby-top {
@@ -92,6 +87,11 @@ p {
 .participants li {
   padding: 12px;
   border: 1px solid #999;
+}
+
+.lobby__back {
+  display: inline-block;
+  margin-top: 24px;
 }
 
 @media (max-width: 600px) {
