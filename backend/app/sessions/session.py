@@ -42,3 +42,13 @@ class Session:
 
     def get_player(self, player_id: str) -> Player | None:
         return self.players.get(player_id)
+
+    def regenerate_name(self, player_id: str) -> str: 
+        player = self.get_player(player_id)
+        if player is None:
+            raise ValueError(f"Player with ID {player_id} does not exist.")
+
+        self.remove_used_name(player.name)
+        new_name = self.assign_name()
+        player.name = new_name
+        return new_name

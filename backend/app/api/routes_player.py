@@ -8,11 +8,8 @@ router = APIRouter()
 @router.post("/session/{session_id}/regenerate-name")
 def regenerate_name(session_id: str, request: RegenerateNameRequest) -> GenerateNameResponse:
     session = get_or_create_session(session_id)
-    player = session.get_player(request.player_id)
-    if not player:
-        raise ValueError("Player not found")
-    session.remove_used_name(player.name)
-    name = generate_unique_name(session.used_names)
-    session.add_used_name(name)
-    player.name = name
+    try:
+        name = session.regenerate_name(request.player_id)
+    except ValueError as e:
+        raise ValueError(str(e))
     return GenerateNameResponse(name=name)
