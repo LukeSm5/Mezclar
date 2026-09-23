@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { createSession } from "../api/client";
 import { GAMES, formatPlayerRange, formatTimeRange } from "./games";
 import GameSelect from "./GameSelect";
 import {
@@ -11,8 +12,11 @@ import "./CreateGame.css";
 
 export default function CreateGame() {
   const navigate = useNavigate();
+  const [hostName, setHostName] = useState("");
   const [gameId, setGameId] = useState("");
   const [options, setOptions] = useState<GameOptionValues>(defaultOptionValues);
+  const [creating, setCreating] = useState(false);
+  const [error, setError] = useState("");
 
   const selectedGame = GAMES.find((game) => game.id === gameId);
 
@@ -20,10 +24,19 @@ export default function CreateGame() {
     setOptions((previous) => ({ ...previous, [id]: value }));
   }
 
-  function handleStart() {
-    if (!selectedGame) return;
-    // The selected config rides along in router state for the lobby to show.
-    navigate("/host/lobby", { state: { gameId: selectedGame.id, options } });
+  async function handleStart() {
+    if (!selectedGame || !hostName.trim() || creating) return;
+    setCreating(true);
+    setError("");
+
+    try {
+      const session = await createSession(hostName.trim(), selectedGame.id, options);
+      navigate("/host/lobby/" + session.join_code);
+    } catch (error) {
+      setError(error instanceof Error ? error.message : "Could not create the lobby.");
+    } finally {
+      setCreating(false);
+    }
   }
 
   return (
@@ -37,9 +50,21 @@ export default function CreateGame() {
           <h1 className="create__title">Host a game</h1>
           <p className="create__lede">
             Pick a game and set your options. You&rsquo;ll get a join code to share
-            on the next screen, and players can join right up until you start.
+            on the next screen.
           </p>
         </header>
+
+        <section className="create__section" aria-labelledby="host-heading">
+          <h2 className="create__heading" id="host-heading">Your name</h2>
+          <input
+            className="create__name"
+            value={hostName}
+            onChange={(event) => setHostName(event.target.value)}
+            placeholder="Host name"
+            maxLength={40}
+            autoComplete="name"
+          />
+        </section>
 
         <section className="create__section" aria-labelledby="game-heading">
           <h2 className="create__heading" id="game-heading">
@@ -98,13 +123,14 @@ export default function CreateGame() {
             className="create__start"
             type="button"
             onClick={handleStart}
-            disabled={!selectedGame}
+            disabled={!selectedGame || !hostName.trim() || creating}
           >
-            Start game
+            {creating ? "Creating..." : "Create lobby"}
           </button>
           {!selectedGame && (
             <p className="create__hint">Choose a game to continue.</p>
           )}
+          {error && <p className="create__hint" role="alert">{error}</p>}
         </div>
       </div>
     </main>

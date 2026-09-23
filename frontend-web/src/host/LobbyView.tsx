@@ -1,61 +1,81 @@
 import { useEffect, useState } from "react";
-import { Link, useLocation } from "react-router-dom";
-import { createLobbyQrCode, generateJoinCode } from "../utils/lobby";
+import { Link, useParams } from "react-router-dom";
+import { getSession, type GameSession } from "../api/client";
+import { createLobbyQrCode } from "../utils/lobby";
 import { GAMES } from "./games";
-import type { GameOptionValues } from "./gameOptions";
 import "../styles.css";
 
-type Participant = {
-  id: string;
-  display_name: string;
-};
-
-type LobbyState = {
-  gameId?: string;
-  options?: GameOptionValues;
-};
-
-type LobbyViewProps = {
-  joinCode?: string;
-  lobbyName?: string;
-  participants?: Participant[];
-};
-
-export default function LobbyView({
-  joinCode,
-  lobbyName = "Mezclar lobby",
-  participants = [],
-}: LobbyViewProps) {
-  const { state } = useLocation() as { state: LobbyState | null };
-  const game = GAMES.find((entry) => entry.id === state?.gameId);
-  const [demoJoinCode] = useState(generateJoinCode);
-  const code = joinCode ?? demoJoinCode;
-  const joinUrl = new URL(`/join/${code}`, window.location.origin).href;
+export default function LobbyView() {
+  const { code } = useParams<{ code: string }>();
+  const [session, setSession] = useState<GameSession | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
   const [qrCode, setQrCode] = useState("");
+  const joinUrl = code ? new URL("/join/" + code, window.location.origin).href : "";
 
   useEffect(() => {
-    let current = true;
-    createLobbyQrCode(joinUrl).then((image) => {
-      if (current) setQrCode(image);
-    });
+    if (!code) return;
+    let active = true;
+
+    async function refresh() {
+      try {
+        const next = await getSession(code!);
+        if (active) {
+          setSession(next);
+          setError("");
+        }
+      } catch (error) {
+        if (active) setError(error instanceof Error ? error.message : "Could not load the lobby.");
+      } finally {
+        if (active) setLoading(false);
+      }
+    }
+
+    void refresh();
+    const timer = window.setInterval(refresh, 3000);
     return () => {
-      current = false;
+      active = false;
+      window.clearInterval(timer);
+    };
+  }, [code]);
+
+  useEffect(() => {
+    if (!joinUrl) return;
+    let active = true;
+    createLobbyQrCode(joinUrl)
+      .then((image) => {
+        if (active) setQrCode(image);
+      })
+      .catch(() => {
+        if (active) setQrCode("");
+      });
+    return () => {
+      active = false;
     };
   }, [joinUrl]);
 
+  if (loading) return <main className="lobby"><p>Loading lobby...</p></main>;
+  if (!session) {
+    return (
+      <main className="lobby">
+        <p role="alert">{error || "Lobby not found."}</p>
+        <Link to="/host/new">Back to create game</Link>
+      </main>
+    );
+  }
+
+  const game = GAMES.find((entry) => entry.id === session.settings.gameId);
+
   return (
     <main className="lobby">
-      <h1>{lobbyName}</h1>
-      <p className="lobby__game">
-        {game
-          ? `Configured game: ${game.name}. Options: ${JSON.stringify(state?.options ?? {})}`
-          : "No game configured — reached directly rather than from Create game."}
-      </p>
+      <h1>{game?.name ?? "Mezclar lobby"}</h1>
+      <p className="lobby__game">Hosted by {session.host_name} · Waiting for players</p>
+      {error && <p className="lobby__error" role="alert">{error}</p>}
 
       <section className="lobby-top" aria-label="Lobby information">
         <div className="join-code">
           <h2>Join code</h2>
-          <p className="code">{code}</p>
+          <p className="code">{session.join_code}</p>
         </div>
 
         <div className="qr-code">
@@ -73,13 +93,13 @@ export default function LobbyView({
       </section>
 
       <section className="participants" aria-labelledby="participants-title">
-        <h2 id="participants-title">Participants ({participants.length})</h2>
-        {participants.length === 0 ? (
+        <h2 id="participants-title">Participants ({session.players.length})</h2>
+        {session.players.length === 0 ? (
           <p>No participants yet.</p>
         ) : (
           <ul>
-            {participants.map((participant) => (
-              <li key={participant.id}>{participant.display_name}</li>
+            {session.players.map((player) => (
+              <li key={player.id}>{player.display_name}</li>
             ))}
           </ul>
         )}
