@@ -104,3 +104,37 @@
     border-bottom: 1px solid black;
   }
 }
+
+.lobby__form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-width: 320px;
+}
+
+.lobby__input {
+  padding: 12px;
+  border: 1px solid #777;
+  border-radius: 6px;
+  font: inherit;
+}
+
+.lobby__button {
+  padding: 12px;
+  border: 0;
+  border-radius: 6px;
+  background: #222;
+  color: white;
+  font: inherit;
+  cursor: pointer;
+}
+
+.lobby__button:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.lobby__error {
+  margin: 12px 0 !important;
+  color: #a00;
+}
