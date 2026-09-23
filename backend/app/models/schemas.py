@@ -24,6 +24,12 @@ class CreateSessionRequest(BaseModel):
     settings: dict[str, JsonValue] = Field(default_factory=dict)
 
 
+class JoinSessionRequest(BaseModel):
+    model_config = ConfigDict(str_strip_whitespace=True, extra="forbid")
+
+    display_name: str = Field(min_length=1)
+
+
 class Player(BaseModel):
     id: str
     display_name: str

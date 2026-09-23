@@ -1,8 +1,9 @@
 """Session state and temporary storage for a single backend process."""
 
 from threading import Lock
+from uuid import uuid4
 
-from backend.app.models.schemas import CreateSessionRequest, GameSession
+from backend.app.models.schemas import CreateSessionRequest, GameSession, Player as GamePlayer
 from backend.app.naming.generator import generate_unique_name
 from backend.app.sessions.codes import generate_join_code
 from backend.app.sessions.player import Player
@@ -82,3 +83,13 @@ def create_session(request: CreateSessionRequest) -> GameSession:
 
 def get_session(join_code: str) -> GameSession | None:
     return active_sessions.get(join_code)
+
+
+def join_session(join_code: str, display_name: str) -> GameSession | None:
+    with _session_lock:
+        session = active_sessions.get(join_code)
+        if session is None:
+            return None
+
+        session.players.append(GamePlayer(id=uuid4().hex, display_name=display_name))
+        return session

@@ -215,3 +215,39 @@ def test_concurrent_creation_keeps_all_sessions():
 
     assert len({session.join_code for session in sessions}) == 20
     assert len(session_store.active_sessions) == 20
+
+
+def test_join_session_records_player_in_right_lobby(client):
+    first = client.post("/sessions", json={"host_name": "George"}).json()
+    second = client.post("/sessions", json={"host_name": "Taylor"}).json()
+
+    response = client.post(
+        f"/sessions/{first['join_code']}/players",
+        json={"display_name": "  Casey  "},
+    )
+
+    assert response.status_code == 201
+    players = response.json()["players"]
+    assert len(players) == 1
+    assert players[0]["id"]
+    assert players[0]["display_name"] == "Casey"
+    assert client.get(f"/sessions/{first['join_code']}").json()["players"] == players
+    assert client.get(f"/sessions/{second['join_code']}").json()["players"] == []
+
+
+def test_join_unknown_session(client):
+    response = client.post(
+        "/sessions/123456/players",
+        json={"display_name": "Casey"},
+    )
+    assert response.status_code == 404
+    assert response.json() == {"detail": "Session not found."}
+
+
+@pytest.mark.parametrize("payload", [{}, {"display_name": ""}, {"display_name": "   "}])
+def test_join_requires_name(client, payload):
+    session = client.post("/sessions", json={"host_name": "George"}).json()
+    response = client.post(f"/sessions/{session['join_code']}/players", json=payload)
+
+    assert response.status_code == 422
+    assert client.get(f"/sessions/{session['join_code']}").json()["players"] == []
