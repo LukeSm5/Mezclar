@@ -28,11 +28,10 @@
 }
 
 .landing__title {
-  margin: 0;
-  font-size: clamp(3rem, 15vw, 5rem);
-  font-weight: 800;
-  letter-spacing: -0.02em;
-  line-height: 1;
+  display: block;
+  margin: 0 auto;
+  width: clamp(220px, 60vw, 380px);
+  height: auto;
 }
 
 .landing__welcome {

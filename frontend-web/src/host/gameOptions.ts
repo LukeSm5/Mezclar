@@ -21,6 +21,13 @@ export const GAME_OPTIONS: GameOptionDef[] = [
       "Restricts generated player names and submitted text to a family-friendly wordlist.",
     defaultValue: true,
   },
+  {
+    id: "autoGenerateNames",
+    label: "Auto-generate player names",
+    description:
+      "Assigns each player a randomly generated name instead of letting them pick their own.",
+    defaultValue: false,
+  },
 ];
 
 export type GameOptionValues = Record<string, boolean>;

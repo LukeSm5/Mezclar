@@ -7,6 +7,8 @@
   --accent: #ffffff;
   --accent-hover: rgba(255, 255, 255, 0.88);
   --accent-text: #9d174d;
+  /* Pale rather than a true red — it sits on a pink/orange gradient. */
+  --error: #ffc9c9;
 
   font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
   color-scheme: dark;

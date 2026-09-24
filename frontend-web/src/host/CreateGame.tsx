@@ -7,14 +7,26 @@ import {
   defaultOptionValues,
   type GameOptionValues,
 } from "./gameOptions";
+import {
+  activeFilterCount,
+  emptyFilters,
+  filterGames,
+  type GameFilters,
+} from "./gameFilters";
+import GameFilterPopover from "./GameFilterPopover";
 import "./CreateGame.css";
 
 export default function CreateGame() {
   const navigate = useNavigate();
   const [gameId, setGameId] = useState("");
   const [options, setOptions] = useState<GameOptionValues>(defaultOptionValues);
+  const [filters, setFilters] = useState<GameFilters>(emptyFilters);
 
+  // Looked up against the full catalog, not the filtered list: filtering is a
+  // way to find a game, and must not disturb one that's already chosen.
   const selectedGame = GAMES.find((game) => game.id === gameId);
+  const visibleGames = filterGames(GAMES, filters);
+  const filtersActive = activeFilterCount(filters) > 0;
 
   function setOption(id: string, value: boolean) {
     setOptions((previous) => ({ ...previous, [id]: value }));
@@ -43,12 +55,24 @@ export default function CreateGame() {
         </header>
 
         <section className="create__section" aria-labelledby="game-heading">
-          <h2 className="create__heading" id="game-heading">
-            Choose a game
-          </h2>
+          <div className="create__heading-row">
+            <h2 className="create__heading" id="game-heading">
+              Choose a game
+            </h2>
+            <div className="create__heading-tools">
+              {/* Always mounted — a live region inserted alongside its first
+                  message tends not to get announced. */}
+              <span className="create__count" aria-live="polite">
+                {filtersActive
+                  ? `${visibleGames.length} of ${GAMES.length} games`
+                  : ""}
+              </span>
+              <GameFilterPopover filters={filters} onApply={setFilters} />
+            </div>
+          </div>
 
           <GameSelect
-            games={GAMES}
+            games={visibleGames}
             value={gameId}
             onChange={setGameId}
             describedBy={selectedGame ? "game-detail" : undefined}

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import type { FormEvent } from "react";
 import { useNavigate } from "react-router-dom";
+import mezclarLogo from "../assets/mezclar-logo.png";
 import "./LandingPage.css";
 
 // The backend does not define a join-code format yet. Change this (and the
@@ -30,7 +31,7 @@ export default function LandingPage() {
     <main className="landing">
       <div className="landing__inner">
         <header className="landing__header">
-          <h1 className="landing__title">Mezclar</h1>
+          <img className="landing__title" src={mezclarLogo} alt="Mezclar" />
           <p className="landing__welcome">
             Get a room talking. Enter your game code to jump in.
           </p>

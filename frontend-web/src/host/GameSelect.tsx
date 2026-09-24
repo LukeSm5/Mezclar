@@ -37,6 +37,11 @@ export default function GameSelect({
     return () => document.removeEventListener("pointerdown", handlePointerDown);
   }, [open]);
 
+  // Filtering can shrink the list out from under the highlight while it's open.
+  useEffect(() => {
+    setActiveIndex((index) => Math.min(index, Math.max(games.length - 1, 0)));
+  }, [games.length]);
+
   function openList() {
     const index = games.findIndex((game) => game.id === value);
     setActiveIndex(index >= 0 ? index : 0);
@@ -102,7 +107,9 @@ export default function GameSelect({
         aria-haspopup="listbox"
         aria-expanded={open}
         aria-controls={open ? listId : undefined}
-        aria-activedescendant={open ? `${listId}-${activeIndex}` : undefined}
+        aria-activedescendant={
+          open && games.length > 0 ? `${listId}-${activeIndex}` : undefined
+        }
         aria-describedby={describedBy}
         onClick={() => (open ? setOpen(false) : openList())}
       >
@@ -114,6 +121,11 @@ export default function GameSelect({
 
       {open && (
         <ul className="select__list" id={listId} role="listbox" tabIndex={-1}>
+          {games.length === 0 && (
+            <li className="select__no-match" role="presentation">
+              No games match your filters
+            </li>
+          )}
           {games.map((game, index) => (
             <li
               key={game.id}
