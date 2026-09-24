@@ -15,6 +15,7 @@ import {
 } from "./gameFilters";
 import GameFilterPopover from "./GameFilterPopover";
 import "./CreateGame.css";
+import { toggleAutoNames } from "../api/client";
 
 export default function CreateGame() {
   const navigate = useNavigate();
@@ -34,8 +35,11 @@ export default function CreateGame() {
 
   function handleStart() {
     if (!selectedGame) return;
-    // No session exists yet — the backend has no create-session endpoint, so
-    // the chosen config rides along in router state for the lobby to show.
+    const session_id = crypto.randomUUID();
+
+    if (options.autoGenerateNames) {
+      toggleAutoNames(session_id, true);
+    }
     navigate("/host/lobby", { state: { gameId: selectedGame.id, options } });
   }
 

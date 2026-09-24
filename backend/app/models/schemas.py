@@ -8,3 +8,7 @@ class RegenerateNameRequest(BaseModel):
 
 class ToggleAutoNamesRequest(BaseModel):
     enabled: bool
+
+class SubmitNameRequest(BaseModel):
+    player_id: str
+    requested_name: str
