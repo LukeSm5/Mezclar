@@ -1,18 +1,5 @@
 /* TODO: Improve the styling of the join input and button */
 
-.join-input {
-  font-size: 18px;
-  font-family: Georgia, serif;
-  color: #aaa;
-  padding: 10px 14px;
-  background-color:#fff;
-  width: 300px;
-  border: 1px solid #ccc;
-  border-radius: 6px;
-  display: block;
-  margin: 0 auto 16px auto;
-}
-
 .join-button {
   font-size: 16px;
   font-family: Georgia, serif;
@@ -24,4 +11,34 @@
   cursor: pointer;
   display: block;
   margin: 0 auto;
+}
+
+.join-input-row {
+  display: flex;
+  width: 300px;
+  margin: 0 auto 16px auto;
+}
+
+.join-input {
+  flex: 1;
+  height: 43px;
+  box-sizing: border-box;
+  font-size: 18px;
+  font-family: Georgia, serif;
+  color: #aaa;
+  padding: 10px 14px;
+  background-color: #fff;
+  border: 1px solid #ccc;
+  border-right: none;
+  border-radius: 6px 0 0 6px;
+}
+
+.join-regenerate-button {
+  padding: 0 14px;
+  height: 43px;
+  box-sizing: border-box;
+  background-color: #555;
+  border: 1px solid #ccc;
+  border-radius: 0 6px 6px 0;
+  cursor: pointer;
 }
