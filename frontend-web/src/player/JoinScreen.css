@@ -1,0 +1,27 @@
+/* TODO: Improve the styling of the join input and button */
+
+.join-input {
+  font-size: 18px;
+  font-family: Georgia, serif;
+  color: #aaa;
+  padding: 10px 14px;
+  background-color:#fff;
+  width: 300px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  display: block;
+  margin: 0 auto 16px auto;
+}
+
+.join-button {
+  font-size: 16px;
+  font-family: Georgia, serif;
+  color: #fff;
+  background-color: #4a7dfc;
+  padding: 10px 24px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  display: block;
+  margin: 0 auto;
+}
