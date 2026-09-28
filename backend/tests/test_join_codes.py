@@ -1,17 +1,8 @@
-from unittest.mock import patch
+import re
 
-import pytest
-
-from backend.app.sessions.codes import generate_join_code
+from backend.app.sessions.code_generator import generate_session_code
 
 
-@pytest.mark.parametrize(
-    ("random_value", "expected_code"),
-    [(0, "100000"), (899_999, "999999")],
-)
-def test_join_code_range(random_value, expected_code):
-    with patch(
-        "backend.app.sessions.codes.randbelow",
-        return_value=random_value,
-    ):
-        assert generate_join_code() == expected_code
+def test_session_codes_match_the_join_form():
+    for _ in range(20):
+        assert re.fullmatch(r"[A-Z0-9]{4}", generate_session_code())

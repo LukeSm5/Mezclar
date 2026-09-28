@@ -1,58 +1,56 @@
-"""Routes used by players to find a session and manage names."""
+"""Routes used by players to join, manage names, and mark themselves ready."""
 
-from typing import Annotated
-
-from fastapi import APIRouter, HTTPException, Path
+from fastapi import APIRouter, HTTPException
+from backend.app.api import SessionCode
 
 from backend.app.models.schemas import (
-    GameSession,
     GenerateNameResponse,
     JoinSessionRequest,
+    JoinSessionResponse,
     RegenerateNameRequest,
-    SubmitNameRequest,
+    SessionPlayerResponse,
+    UpdateReadyStatusRequest,
 )
-from backend.app.sessions import session as session_store
-from backend.app.sessions.registry import get_or_create_session
+from backend.app.sessions.registry import get_session
 
 router = APIRouter()
 
 
-@router.post("/session/{session_id}/regenerate-name")
-def regenerate_name(session_id: str, request: RegenerateNameRequest) -> GenerateNameResponse:
-    session = get_or_create_session(session_id)
+@router.post("/session/{session_id}/regenerate-name", response_model=GenerateNameResponse)
+def regenerate_name(session_id: SessionCode, request: RegenerateNameRequest) -> GenerateNameResponse:
+    session = get_session(session_id)
+    if session is None:
+        raise HTTPException(status_code=404, detail="Session not found")
+    if session.get_player(request.player_id) is None:
+        raise HTTPException(status_code=404, detail="Player not found")
     try:
         name = session.regenerate_name(request.player_id)
     except ValueError as error:
-        raise ValueError(str(error)) from error
+        raise HTTPException(status_code=400, detail=str(error)) from error
     return GenerateNameResponse(name=name)
 
 
-@router.get("/sessions/{join_code}", response_model=GameSession)
-def get_session(
-    join_code: Annotated[str, Path(pattern=r"^[1-9][0-9]{5}$")],
-) -> GameSession:
-    session = session_store.get_session(join_code)
+@router.post("/session/{session_id}/join", response_model=JoinSessionResponse)
+def join_session(session_id: SessionCode, request: JoinSessionRequest) -> JoinSessionResponse:
+    session = get_session(session_id)
     if session is None:
-        raise HTTPException(status_code=404, detail="Session not found.")
-    return session
-
-
-@router.post("/sessions/{join_code}/players", status_code=201, response_model=GameSession)
-def join_session(
-    join_code: Annotated[str, Path(pattern=r"^[1-9][0-9]{5}$")],
-    request: JoinSessionRequest,
-) -> GameSession:
-    session = session_store.join_session(join_code, request.display_name)
-    if session is None:
-        raise HTTPException(status_code=404, detail="Session not found.")
-    return session
-
-
-@router.post("/session/{session_id}/submit-name")
-def submit_name(session_id: str, request: SubmitNameRequest) -> GenerateNameResponse:
-    session = get_or_create_session(session_id)
+        raise HTTPException(status_code=404, detail="Session not found")
     try:
-        name = session.submit_name(request.player_id, request.requested_name)
+        player = session.add_player(request.player_id, request.name)
     except ValueError as error:
-        raise ValueError(str(error)) from error
-    return GenerateNameResponse(name=name)
+        raise HTTPException(status_code=400, detail=str(error)) from error
+    return JoinSessionResponse(session_id=session_id, **SessionPlayerResponse.model_validate(player).model_dump())
+
+
+@router.patch("/session/{session_id}/players/{player_id}/ready", response_model=SessionPlayerResponse)
+def update_ready_status(
+    session_id: SessionCode, player_id: str, request: UpdateReadyStatusRequest,
+) -> SessionPlayerResponse:
+    session = get_session(session_id)
+    if session is None:
+        raise HTTPException(status_code=404, detail="Session not found")
+    try:
+        player = session.set_player_ready(player_id, request.ready)
+    except ValueError as error:
+        raise HTTPException(status_code=404, detail=str(error)) from error
+    return SessionPlayerResponse.model_validate(player)

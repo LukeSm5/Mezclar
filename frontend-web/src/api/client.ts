@@ -1,74 +1,69 @@
-export type GameSession = {
-  join_code: string;
-  host_name: string;
-  status: "lobby";
-  players: { id: string; display_name: string }[];
-  settings: {
-    gameId?: string;
-    options?: Record<string, boolean>;
-  };
-};
+import type {
+  JoinSessionResponse,
+  SessionPlayer,
+  SessionResponse,
+  StartGameRequest,
+  UpdateReadyStatusRequest,
+} from "../../../shared/types/messages";
 
-async function sessionResponse(response: Response): Promise<GameSession> {
-  if (response.status === 404) {
-    throw new Error("No lobby found for that code.");
-  }
+export type { SessionPlayer, SessionResponse } from "../../../shared/types/messages";
+
+async function apiResponse<T>(response: Response): Promise<T> {
+  const data = await response.json();
   if (!response.ok) {
-    throw new Error("Could not reach the lobby. Please try again.");
+    const detail = typeof data.detail === "string" ? data.detail : "Could not complete the request. Please try again.";
+    throw new Error(detail);
   }
-  return response.json() as Promise<GameSession>;
+  return data as T;
 }
 
 export async function createSession(
   hostName: string,
   gameId: string,
   options: Record<string, boolean>,
-): Promise<GameSession> {
-  const response = await fetch("/api/sessions", {
+): Promise<SessionResponse> {
+  return apiResponse(await fetch("/api/session", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      host_name: hostName,
-      settings: { gameId, options },
-    }),
-  });
-  return sessionResponse(response);
+    body: JSON.stringify({ host_name: hostName, settings: { gameId, options } }),
+  }));
 }
 
-export async function getSession(code: string): Promise<GameSession> {
-  return sessionResponse(await fetch("/api/sessions/" + code));
+export async function getSession(code: string): Promise<SessionResponse> {
+  return apiResponse(await fetch("/api/session/" + code));
 }
 
 export async function joinSession(
-  code: string,
-  displayName: string,
-): Promise<GameSession> {
-  const response = await fetch("/api/sessions/" + code + "/players", {
+  code: string, playerId: string, name: string,
+): Promise<JoinSessionResponse> {
+  return apiResponse(await fetch("/api/session/" + code + "/join", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ display_name: displayName }),
-  });
-  return sessionResponse(response);
+    body: JSON.stringify({ player_id: playerId, name: name.trim() || null }),
+  }));
 }
 
-export async function toggleAutoNames(sessionId: string, enabled: boolean): Promise<void> {
-  await fetch(`http://127.0.0.1:8000/session/${sessionId}/toggle-auto-names`, {
-    method: "POST",
+export async function updateReadyStatus(
+  code: string, playerId: string, ready: boolean,
+): Promise<SessionPlayer> {
+  const body: UpdateReadyStatusRequest = { ready };
+  return apiResponse(await fetch("/api/session/" + code + "/players/" + playerId + "/ready", {
+    method: "PATCH",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ enabled }),
-  });
+    body: JSON.stringify(body),
+  }));
 }
 
-export async function regenerateName(sessionId: string, player_id: string): Promise<string> {
-  const response = await fetch(`http://127.0.0.1:8000/session/${sessionId}/regenerate-name`, {
+export async function startGame(code: string, request: StartGameRequest): Promise<SessionResponse> {
+  return apiResponse(await fetch("/api/session/" + code + "/start", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ player_id }),
-  });
+    body: JSON.stringify(request),
+  }));
+}
 
-  if (!response.ok) {
-    throw new Error(`Failed to regenerate name for player ${player_id} in session ${sessionId}`);
-  }
-  const data = await response.json();
-  return data.name;
+export function playerSocketUrl(code: string, playerId: string): string {
+  const url = new URL("/ws/session/" + code + "/player/" + playerId, window.location.href);
+  url.protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
+  return url.href;
 }

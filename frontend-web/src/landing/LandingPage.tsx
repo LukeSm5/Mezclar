@@ -4,10 +4,10 @@ import { useNavigate } from "react-router-dom";
 import mezclarLogo from "../assets/mezclar-logo.png";
 import "./LandingPage.css";
 
-const JOIN_CODE_LENGTH = 6;
+const JOIN_CODE_LENGTH = 4;
 
 function sanitizeCode(raw: string): string {
-  return raw.replace(/[^0-9]/g, "").slice(0, JOIN_CODE_LENGTH);
+  return raw.toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, JOIN_CODE_LENGTH);
 }
 
 export default function LandingPage() {
@@ -38,12 +38,12 @@ export default function LandingPage() {
             className="landing__code"
             value={code}
             onChange={(event) => setCode(sanitizeCode(event.target.value))}
-            placeholder="123456"
-            inputMode="numeric"
+            placeholder="AB12"
+            autoCapitalize="characters"
             autoComplete="off"
             spellCheck={false}
             maxLength={JOIN_CODE_LENGTH}
-            aria-label="Six digit join code"
+            aria-label="Four character join code"
             autoFocus
           />
           <button className="landing__submit" type="submit" disabled={!isComplete}>

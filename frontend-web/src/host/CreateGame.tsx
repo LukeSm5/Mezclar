@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { createSession, toggleAutoNames } from "../api/client";
+import { createSession } from "../api/client";
 import { GAMES, formatPlayerRange, formatTimeRange } from "./games";
 import GameSelect from "./GameSelect";
 import {
@@ -43,10 +43,7 @@ export default function CreateGame() {
 
     try {
       const session = await createSession(hostName.trim(), selectedGame.id, options);
-      if (options.autoGenerateNames) {
-        await toggleAutoNames(session.join_code, true);
-      }
-      navigate("/host/lobby/" + session.join_code);
+      navigate("/host/lobby/" + session.session_id);
     } catch (error) {
       setError(error instanceof Error ? error.message : "Could not create the lobby.");
     } finally {
