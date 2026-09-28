@@ -69,6 +69,196 @@
   color: var(--text-muted);
 }
 
+.create__heading-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.create__heading-tools {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.create__count {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+/* Filter popup */
+
+.filter-pop {
+  position: relative;
+  flex: none;
+}
+
+.filter-pop__trigger {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 14px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--surface);
+  backdrop-filter: blur(6px);
+  color: var(--text);
+  font-family: inherit;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    border-color 120ms ease,
+    background 120ms ease;
+}
+
+.filter-pop__trigger:hover,
+.filter-pop__trigger.is-open {
+  border-color: var(--text);
+  background: rgba(0, 0, 0, 0.26);
+}
+
+.filter-pop__badge {
+  display: grid;
+  place-items: center;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 6px;
+  border-radius: 999px;
+  background: var(--accent);
+  color: var(--accent-text);
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.filter-pop__panel {
+  position: absolute;
+  z-index: 10;
+  top: calc(100% + 6px);
+  right: 0;
+  /* Never wider than the viewport minus the page's 16px gutters. */
+  width: min(300px, calc(100vw - 32px));
+  padding: 14px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: rgba(0, 0, 0, 0.42);
+  backdrop-filter: blur(18px);
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.3);
+}
+
+.filter-pop__grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+}
+
+.filter-pop__error {
+  margin: 12px 0 0;
+  font-size: 0.8125rem;
+  line-height: 1.4;
+  color: var(--error);
+}
+
+.filter-pop__actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 14px;
+}
+
+.filter-pop__clear,
+.filter-pop__apply {
+  flex: 1;
+  padding: 10px;
+  border-radius: 11px;
+  font-family: inherit;
+  font-size: 0.9375rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition:
+    background 120ms ease,
+    border-color 120ms ease,
+    opacity 120ms ease;
+}
+
+.filter-pop__clear {
+  border: 1px solid var(--border);
+  background: none;
+  color: var(--text-muted);
+}
+
+.filter-pop__clear:hover:not(:disabled) {
+  color: var(--text);
+  border-color: var(--text);
+}
+
+.filter-pop__clear:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+.filter-pop__apply {
+  border: none;
+  background: var(--accent);
+  color: var(--accent-text);
+}
+
+.filter-pop__apply:hover {
+  background: var(--accent-hover);
+}
+
+.filter-pop__field {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.filter-pop__label {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.filter-pop__number {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: 11px;
+  background: var(--surface);
+  color: var(--text);
+  font-family: inherit;
+  font-size: 0.9375rem;
+  outline: none;
+  transition: border-color 120ms ease;
+  /* The spinner arrows crowd a field this narrow. */
+  appearance: textfield;
+  -moz-appearance: textfield;
+}
+
+.filter-pop__number:focus {
+  border-color: var(--border-focus);
+}
+
+.filter-pop__number[aria-invalid="true"] {
+  border-color: var(--error);
+}
+
+.filter-pop__number::placeholder {
+  color: var(--text-muted);
+  opacity: 0.7;
+}
+
+.filter-pop__number::-webkit-outer-spin-button,
+.filter-pop__number::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
 /* Game picker */
 
 .select {
@@ -145,6 +335,10 @@
 }
 
 .select__option {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
   padding: 12px 14px;
   border-radius: 9px;
   font-size: 1rem;
@@ -156,8 +350,15 @@
   background: rgba(255, 255, 255, 0.2);
 }
 
+/* Escaped rather than a literal glyph, which a re-encoding pass can mangle. */
 .select__option[aria-selected="true"]::after {
-  content: " ¹3";
+  content: "\2713";
+  color: var(--text-muted);
+}
+
+.select__no-match {
+  padding: 12px 14px;
+  font-size: 0.9375rem;
   color: var(--text-muted);
 }
 

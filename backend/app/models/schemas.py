@@ -47,3 +47,8 @@ class Game(BaseModel):
     """Placeholder model for a predefined game."""
 
     pass
+
+
+class SubmitNameRequest(BaseModel):
+    player_id: str
+    requested_name: str

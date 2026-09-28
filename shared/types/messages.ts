@@ -9,3 +9,8 @@ export interface RegenerateNameRequest {
 export interface GenerateNameResponse {
     name: string;
 }
+
+export interface SubmitNameRequest {
+    player_id: string;
+    requested_name: string;
+}

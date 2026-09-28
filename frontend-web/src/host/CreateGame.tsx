@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { createSession } from "../api/client";
+import { createSession, toggleAutoNames } from "../api/client";
 import { GAMES, formatPlayerRange, formatTimeRange } from "./games";
 import GameSelect from "./GameSelect";
 import {
@@ -8,6 +8,13 @@ import {
   defaultOptionValues,
   type GameOptionValues,
 } from "./gameOptions";
+import {
+  activeFilterCount,
+  emptyFilters,
+  filterGames,
+  type GameFilters,
+} from "./gameFilters";
+import GameFilterPopover from "./GameFilterPopover";
 import "./CreateGame.css";
 
 export default function CreateGame() {
@@ -17,8 +24,13 @@ export default function CreateGame() {
   const [options, setOptions] = useState<GameOptionValues>(defaultOptionValues);
   const [creating, setCreating] = useState(false);
   const [error, setError] = useState("");
+  const [filters, setFilters] = useState<GameFilters>(emptyFilters);
 
+  // Looked up against the full catalog, not the filtered list: filtering is a
+  // way to find a game, and must not disturb one that's already chosen.
   const selectedGame = GAMES.find((game) => game.id === gameId);
+  const visibleGames = filterGames(GAMES, filters);
+  const filtersActive = activeFilterCount(filters) > 0;
 
   function setOption(id: string, value: boolean) {
     setOptions((previous) => ({ ...previous, [id]: value }));
@@ -31,6 +43,9 @@ export default function CreateGame() {
 
     try {
       const session = await createSession(hostName.trim(), selectedGame.id, options);
+      if (options.autoGenerateNames) {
+        await toggleAutoNames(session.join_code, true);
+      }
       navigate("/host/lobby/" + session.join_code);
     } catch (error) {
       setError(error instanceof Error ? error.message : "Could not create the lobby.");
@@ -67,12 +82,24 @@ export default function CreateGame() {
         </section>
 
         <section className="create__section" aria-labelledby="game-heading">
-          <h2 className="create__heading" id="game-heading">
-            Choose a game
-          </h2>
+          <div className="create__heading-row">
+            <h2 className="create__heading" id="game-heading">
+              Choose a game
+            </h2>
+            <div className="create__heading-tools">
+              {/* Always mounted — a live region inserted alongside its first
+                  message tends not to get announced. */}
+              <span className="create__count" aria-live="polite">
+                {filtersActive
+                  ? `${visibleGames.length} of ${GAMES.length} games`
+                  : ""}
+              </span>
+              <GameFilterPopover filters={filters} onApply={setFilters} />
+            </div>
+          </div>
 
           <GameSelect
-            games={GAMES}
+            games={visibleGames}
             value={gameId}
             onChange={setGameId}
             describedBy={selectedGame ? "game-detail" : undefined}

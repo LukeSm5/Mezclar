@@ -251,3 +251,20 @@ def test_join_requires_name(client, payload):
 
     assert response.status_code == 422
     assert client.get(f"/sessions/{session['join_code']}").json()["players"] == []
+
+
+def test_regenerate_name_nonexistent_player():
+    session = Session("abc123")
+    with pytest.raises(ValueError):
+        session.regenerate_name("nonexistent_player")
+
+def test_regenerate_name_existing_player():
+    session = Session("abc123")
+    session.set_auto_generate(True)
+    session.add_player("existing_player", requested_name="old_name")
+    with patch("backend.app.sessions.session.generate_unique_name", return_value="new_name"):
+        new_name = session.regenerate_name("existing_player")
+        assert new_name == "new_name"
+        assert session.get_player("existing_player").name == "new_name"
+        assert "old_name" not in session.used_names
+        assert "new_name" in session.used_names

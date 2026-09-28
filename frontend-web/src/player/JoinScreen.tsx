@@ -4,6 +4,7 @@ import { Link, useParams } from "react-router-dom";
 import { getSession, joinSession, type GameSession } from "../api/client";
 import { GAMES } from "../host/games";
 import "../styles.css";
+import "./JoinScreen.css";
 
 export default function JoinScreen() {
   const { code } = useParams<{ code: string }>();
@@ -13,6 +14,10 @@ export default function JoinScreen() {
   const [joining, setJoining] = useState(false);
   const [joined, setJoined] = useState(false);
   const [error, setError] = useState("");
+
+  function handleRegenerate() {
+    // TODO: Connect main's regenerate control to the naming API.
+  }
 
   useEffect(() => {
     if (!code) return;
@@ -73,15 +78,27 @@ export default function JoinScreen() {
       ) : (
         <form className="lobby__form" onSubmit={handleJoin}>
           <label htmlFor="player-name">Your name</label>
-          <input
-            id="player-name"
-            className="lobby__input"
-            value={name}
-            onChange={(event) => setName(event.target.value)}
-            maxLength={40}
-            autoComplete="name"
-          />
-          <button className="lobby__button" type="submit" disabled={!name.trim() || joining}>
+          <div className="join-input-row">
+            <input
+              id="player-name"
+              className="join-input"
+              type="text"
+              value={name}
+              onChange={(event) => setName(event.target.value)}
+              placeholder="Enter your name"
+              maxLength={40}
+              autoComplete="name"
+            />
+            <button
+              type="button"
+              className="join-regenerate-button"
+              onClick={handleRegenerate}
+              aria-label="Regenerate name"
+            >
+              ↻
+            </button>
+          </div>
+          <button className="join-button" type="submit" disabled={!name.trim() || joining}>
             {joining ? "Joining..." : "Join lobby"}
           </button>
         </form>

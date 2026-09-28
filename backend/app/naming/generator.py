@@ -15,3 +15,6 @@ def generate_unique_name(used_names: set[str], max_attempts: int = 10) -> str:
         if is_unique_name(name, used_names):
             return name
     raise ValueError("Failed to generate a unique name after maximum attempts.")
+
+def validate_name(name: str) -> bool:
+    pass

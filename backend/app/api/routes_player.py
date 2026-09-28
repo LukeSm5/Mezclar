@@ -9,6 +9,7 @@ from backend.app.models.schemas import (
     GenerateNameResponse,
     JoinSessionRequest,
     RegenerateNameRequest,
+    SubmitNameRequest,
 )
 from backend.app.sessions import session as session_store
 from backend.app.sessions.registry import get_or_create_session
@@ -45,3 +46,13 @@ def join_session(
     if session is None:
         raise HTTPException(status_code=404, detail="Session not found.")
     return session
+
+
+@router.post("/session/{session_id}/submit-name")
+def submit_name(session_id: str, request: SubmitNameRequest) -> GenerateNameResponse:
+    session = get_or_create_session(session_id)
+    try:
+        name = session.submit_name(request.player_id, request.requested_name)
+    except ValueError as error:
+        raise ValueError(str(error)) from error
+    return GenerateNameResponse(name=name)
