@@ -32,3 +32,7 @@ class StartGameRequest(BaseModel):
     game_id: str
     minimum_players: int
     maximum_players: int
+
+class SubmitNameRequest(BaseModel):
+    player_id: str
+    requested_name: str

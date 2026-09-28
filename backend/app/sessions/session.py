@@ -25,6 +25,12 @@ class Session:
     def remove_used_name(self, name: str) -> None:
         self.used_names.discard(name)
 
+    def submit_name(self, player_id: str, requested_name: str) -> str:
+        pass
+
+    def submit_name(self, player_id: str, requested_name: str) -> str:
+        pass
+    
     def assign_name(self, requested_name: str | None = None) -> str:
         if requested_name is not None:
             self.add_used_name(requested_name)
@@ -104,3 +110,77 @@ class Session:
             )
 
         self.game_started = True
+
+    def configure_game(self, game_id: str, minimum_players: int, maximum_players: int) -> None:
+        if self.game_started:
+            raise ValueError("Cannot configure a game that has started.")
+
+        if minimum_players < 1:
+            raise ValueError("Minimum players must be at least 1.")
+
+        if maximum_players < minimum_players:
+            raise ValueError(
+                "Maximum players must be greater than or equal to "
+                "minimum players."
+            )
+
+        if len(self.players) > maximum_players:
+            raise ValueError(
+                "The current player count exceeds the maximum player limit."
+            )
+
+        self.game_id = game_id
+        self.minimum_players = minimum_players
+        self.maximum_players = maximum_players
+
+    def can_start_game(self) -> bool:
+        if self.game_started:
+            return False
+
+        if self.game_id is None:
+            return False
+
+        if self.minimum_players is None:
+            return False
+
+        if self.maximum_players is None:
+            return False
+
+        player_count = len(self.players)
+
+        return (
+            player_count >= self.minimum_players
+            and player_count <= self.maximum_players
+        )
+
+    def start_game(self) -> None:
+        if self.game_started:
+            raise ValueError("Game has already started.")
+
+        if not self.can_start_game():
+            raise ValueError(
+                "Game cannot start because the start conditions "
+                "have not been met."
+            )
+
+        self.game_started = True
+
+    def regenerate_name(self, player_id: str) -> str: 
+        player = self.get_player(player_id)
+        if player is None:
+            raise ValueError(f"Player with ID {player_id} does not exist.")
+
+        self.remove_used_name(player.name)
+        new_name = self.assign_name()
+        player.name = new_name
+        return new_name
+    
+    def regenerate_name(self, player_id: str) -> str: 
+        player = self.get_player(player_id)
+        if player is None:
+            raise ValueError(f"Player with ID {player_id} does not exist.")
+
+        self.remove_used_name(player.name)
+        new_name = self.assign_name()
+        player.name = new_name
+        return new_name

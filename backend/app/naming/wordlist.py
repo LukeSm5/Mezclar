@@ -8,5 +8,5 @@ def get_adjectives() -> list[str]:
 def get_nouns() -> list[str]:
     return NOUN_LIST
 
-def is_blocklisted(word: str) -> bool:
-    return word in BLOCK_LIST
+def contains_blocklisted_word(name: str) -> bool:
+    pass

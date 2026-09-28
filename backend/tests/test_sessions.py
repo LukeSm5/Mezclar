@@ -54,3 +54,19 @@ def test_remove_player_removes_used_name():
 def test_get_player_returns_none_if_missing():
     session = Session("abc123")
     assert session.get_player("nonexistent") is None
+
+def test_regenerate_name_nonexistent_player():
+    session = Session("abc123")
+    with pytest.raises(ValueError):
+        session.regenerate_name("nonexistent_player")
+
+def test_regenerate_name_existing_player():
+    session = Session("abc123")
+    session.set_auto_generate(True)
+    session.add_player("existing_player", requested_name="old_name")
+    with patch("backend.app.sessions.session.generate_unique_name", return_value="new_name"):
+        new_name = session.regenerate_name("existing_player")
+        assert new_name == "new_name"
+        assert session.get_player("existing_player").name == "new_name"
+        assert "old_name" not in session.used_names
+        assert "new_name" in session.used_names
