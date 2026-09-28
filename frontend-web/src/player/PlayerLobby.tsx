@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { getSession, playerSocketUrl, updateReadyStatus, type SessionPlayer } from "../api/client";
-import "../styles.css";
 
 export default function PlayerLobby() {
   const { code } = useParams<{ code: string }>();
@@ -66,20 +65,104 @@ export default function PlayerLobby() {
   }
 
   return (
-    <main className="lobby">
+    <main
+      style={{
+        maxWidth: 560,
+        margin: "0 auto",
+        padding: 24,
+        textAlign: "center",
+      }}
+    >
       <h1>You're in!</h1>
-      <p>Welcome, {player?.name ?? "Player"}. Game code: {code}</p>
-      <section className="lobby__start" aria-labelledby="waiting-title">
+
+      <p>
+        Welcome to the game, {player?.name ?? "Player"}.
+      </p>
+
+      <section
+        aria-labelledby="waiting-title"
+        style={{
+          margin: "24px 0",
+          padding: 24,
+          border: "1px solid var(--border)",
+          borderRadius: 12,
+        }}
+      >
+        <p
+          style={{
+            margin: 0,
+            color: "var(--text-muted)",
+          }}
+        >
+          Game Code
+        </p>
+
+        <h2
+          style={{
+            margin: "8px 0 24px",
+            fontSize: 40,
+            letterSpacing: 6,
+          }}
+        >
+          {code}
+        </h2>
+
         <h2 id="waiting-title">Waiting for the host</h2>
-        <p>The game will begin when the host starts it.</p>
-        <p aria-live="polite">{player?.ready ? "You are ready." : "You are not ready yet."}</p>
-        <button className="lobby__button" type="button" aria-pressed={player?.ready ?? false} disabled={!player || saving} onClick={handleReady}>
+
+        <p style={{ color: "var(--text-muted)" }}>
+          The game will begin when the host starts it.
+        </p>
+
+        <p aria-live="polite" style={{ color: "var(--text-muted)" }}>
+          {player?.ready ? "You are ready." : "You are not ready yet."}
+        </p>
+
+        <button
+          type="button"
+          aria-pressed={player?.ready ?? false}
+          disabled={!player || saving}
+          onClick={handleReady}
+          style={{
+            width: "100%",
+            marginTop: 16,
+            padding: 16,
+            border: "none",
+            borderRadius: 12,
+            background: "var(--accent)",
+            color: "var(--accent-text)",
+            fontFamily: "inherit",
+            fontSize: 16,
+            fontWeight: 700,
+            cursor: player && !saving ? "pointer" : "not-allowed",
+            opacity: player && !saving ? 1 : 0.4,
+          }}
+        >
           {saving ? "Updating..." : player?.ready ? "Mark not ready" : "I'm ready"}
         </button>
-        <p>Connection: {connectionStatus}</p>
+
+        <p
+          style={{
+            marginTop: 24,
+            color: "var(--text-muted)",
+            fontSize: 14,
+          }}
+        >
+          Connection: {connectionStatus}
+        </p>
       </section>
-      {error && <p className="lobby__error" role="alert">{error}</p>}
-      <Link className="lobby__back" to={playerId ? "/" : "/join/" + code}>
+
+      {error && (
+        <p
+          role="alert"
+          style={{
+            color: "var(--text-muted)",
+          }}
+        >
+          {error}
+        </p>
+      )}
+
+      <Link to={playerId ? "/" : "/join/" + code}>
         {playerId ? "Leave game" : "Back to join"}
       </Link>
     </main>
