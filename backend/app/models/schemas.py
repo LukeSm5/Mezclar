@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict, Field, JsonValue, StrictBool
 
 class GenerateNameResponse(BaseModel):
     name: str
@@ -10,23 +10,33 @@ class ToggleAutoNamesRequest(BaseModel):
     enabled: bool
 
 class JoinSessionRequest(BaseModel):
-    player_id: str
-    name: str | None = None
+    model_config = ConfigDict(str_strip_whitespace=True, extra="forbid")
+
+    player_id: str = Field(min_length=1)
+    name: str | None = Field(default=None, min_length=1)
 
 class JoinSessionResponse(BaseModel):
     player_id: str
     name: str
     session_id: str
+    ready: bool
 
 class SessionPlayerResponse(BaseModel):
     player_id: str
     name: str
+    ready: bool
 
 class SessionResponse(BaseModel):
     session_id: str
     player_count: int
     players: list[SessionPlayerResponse]
     game_started: bool
+    host_name: str
+    settings: dict[str, JsonValue]
+    auto_generate_names: bool
+    game_id: str | None
+    minimum_players: int | None
+    maximum_players: int | None
 
 class StartGameRequest(BaseModel):
     game_id: str
@@ -36,3 +46,14 @@ class StartGameRequest(BaseModel):
 class SubmitNameRequest(BaseModel):
     player_id: str
     requested_name: str
+
+class CreateSessionRequest(BaseModel):
+    model_config = ConfigDict(str_strip_whitespace=True, extra="forbid")
+
+    host_name: str = Field(default="Host", min_length=1)
+    settings: dict[str, JsonValue] = Field(default_factory=dict)
+
+class UpdateReadyStatusRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    ready: StrictBool

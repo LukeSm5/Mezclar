@@ -1,4 +1,4 @@
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useParams } from "react-router-dom";
 import { GAMES } from "./games";
 import type { GameOptionValues } from "./gameOptions";
 import { useEffect, useState } from "react";
@@ -12,6 +12,7 @@ interface LobbyState {
 interface SessionPlayer {
   player_id: string;
   name: string;
+  ready: boolean;
 }
 
 interface SessionResponse {
@@ -19,17 +20,24 @@ interface SessionResponse {
   player_count: number;
   players: SessionPlayer[];
   game_started: boolean;
+  host_name: string;
+  game_id: string | null;
+  settings: { gameId?: string };
+  minimum_players: number | null;
 }
 
 export default function LobbyView() {
   const { state } = useLocation() as { state: LobbyState | null };
-  const game = GAMES.find((entry) => entry.id === state?.gameId);
+  const { code } = useParams<{ code: string }>();
 
-  const sessionId = state?.sessionId;
+  const sessionId = code ?? state?.sessionId;
 
   const [session, setSession] = useState<SessionResponse | null>(null);
 
-  const [minPlayers, setMinPlayers] = useState(game?.minPlayers ?? 2);
+  const game = GAMES.find((entry) => entry.id === (session?.game_id ?? session?.settings.gameId ?? state?.gameId));
+  const [minimumPlayers, setMinPlayers] = useState<number | null>(null);
+  const minPlayers = minimumPlayers ?? session?.minimum_players ?? game?.minPlayers ?? 2;
+  const readyCount = session?.players.filter((player) => player.ready).length ?? 0;
 
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
@@ -48,7 +56,7 @@ export default function LobbyView() {
     async function fetchSession() {
       try {
         const response = await fetch(
-          `http://127.0.0.1:8000/session/${sessionId}`
+          `/api/session/${sessionId}`
         );
 
         const data = await response.json();
@@ -94,6 +102,7 @@ export default function LobbyView() {
 
   const isReadyToStart = 
     game !== undefined &&
+    !!session && !session.game_started &&
     playerCount >= minPlayers &&
     playerCount <= game.maxPlayers;
 
@@ -121,7 +130,7 @@ export default function LobbyView() {
 
     try {
       const response = await fetch(
-        `http://127.0.0.1:8000/session/${sessionId}/start`,
+        `/api/session/${sessionId}/start`,
         {
           method: "POST",
           headers: {
@@ -200,6 +209,7 @@ export default function LobbyView() {
             {game.description}
           </p>
         )}
+        {session && <p>Hosted by {session.host_name}</p>}
       </header>
 
       {!sessionId ? (
@@ -283,6 +293,8 @@ export default function LobbyView() {
                 : "Players currently in the lobby"}
             </p>
 
+            <p aria-live="polite">{readyCount} of {playerCount} players ready</p>
+
             {session && session.players.length > 0 && (
               <ul
                 style={{
@@ -292,7 +304,7 @@ export default function LobbyView() {
               >
                 {session.players.map((player) => (
                   <li key={player.player_id}>
-                    {player.name}
+                    {player.name} &middot; {player.ready ? "Ready" : "Not ready"}
                   </li>
                 ))}
               </ul>
@@ -334,6 +346,7 @@ export default function LobbyView() {
                   min={1}
                   max={game.maxPlayers}
                   value={minPlayers}
+                  disabled={session?.game_started}
                   onChange={(event) =>
                     handleMinPlayersChange(event.target.value)
                   }
@@ -378,13 +391,15 @@ export default function LobbyView() {
           >
             <h2 style={{ marginTop: 0 }}>Game status</h2>
 
+            {session?.game_started && <p>Game started.</p>}
+
             {!game && (
               <p style={{ color: "var(--text-muted)" }}>
                 No game selected.
               </p>
             )}
 
-            {game && playerCount < minPlayers && (
+            {game && !session?.game_started && playerCount < minPlayers && (
               <p style={{ color: "var(--text-muted)" }}>
                 Waiting for{" "}
                 {minPlayers - playerCount} more player
@@ -429,9 +444,11 @@ export default function LobbyView() {
                     : 0.4,
               }}
             >
-              {isStarting ? "Starting..." : "Start Game"}
+              {session?.game_started ? "Game started" : isStarting ? "Starting..." : "Start Game"}
             </button>
           </section>
+
+          {startError && <p role="alert">{startError}</p>}
 
           {error && (
             <p

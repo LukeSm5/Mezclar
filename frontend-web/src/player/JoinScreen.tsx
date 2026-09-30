@@ -1,7 +1,8 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { FormEvent } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import "./JoinScreen.css";
+import { getSession, type SessionResponse } from "../api/client";
 
 interface JoinSessionResponse {
   player_id: string;
@@ -13,23 +14,41 @@ export default function JoinScreen() {
   const { code } = useParams<{ code: string }>();
   const navigate = useNavigate();
 
+  const [session, setSession] = useState<SessionResponse | null>(null);
+  const [loading, setLoading] = useState(true);
   const [name, setName] = useState("");
   const [isJoining, setIsJoining] = useState(false);
   const [error, setError] = useState("");
 
+  useEffect(() => {
+    if (!code) return;
+    let active = true;
+    setLoading(true);
+    setSession(null);
+    setError("");
+    getSession(code).then((found) => {
+      if (active) setSession(found);
+    }).catch((error) => {
+      if (active) setError(error instanceof Error ? error.message : "Could not load the lobby.");
+    }).finally(() => {
+      if (active) setLoading(false);
+    });
+    return () => { active = false; };
+  }, [code]);
+
   async function handleSubmit(event: FormEvent) {
     event.preventDefault();
 
-    if (!code || isJoining) return;
+    if (!code || !session || isJoining || (!name.trim() && !session.auto_generate_names)) return;
 
     setIsJoining(true);
     setError("");
 
-    const playerId = crypto.randomUUID();
+    const playerId = sessionStorage.getItem("mezclar-player:" + code) ?? crypto.randomUUID();
 
     try {
       const response = await fetch(
-        `http://127.0.0.1:8000/session/${code}/join`,
+        `/api/session/${code}/join`,
         {
           method: "POST",
           headers: {
@@ -50,6 +69,7 @@ export default function JoinScreen() {
 
       const sessionData: JoinSessionResponse = data;
 
+      sessionStorage.setItem("mezclar-player:" + code, sessionData.player_id);
       navigate(`/player/${sessionData.session_id}`, {
         state: {
           playerId: sessionData.player_id,
@@ -81,8 +101,10 @@ export default function JoinScreen() {
           <p className="join__welcome">
             Enter your name to jump into the game.
           </p>
+          {session && <p className="join__welcome">Hosted by {session.host_name}</p>}
         </header>
 
+        {loading && <p>Finding lobby...</p>}
         <form className="join__form" onSubmit={handleSubmit}>
           <label className="join__label" htmlFor="player-name">
             Your name
@@ -100,10 +122,12 @@ export default function JoinScreen() {
             autoFocus
           />
 
+          {session?.auto_generate_names && <p>Leave blank for a generated name.</p>}
+
           <button
             className="join__submit"
             type="submit"
-            disabled={isJoining || !code}
+            disabled={isJoining || !session || (!name.trim() && !session.auto_generate_names)}
           >
             {isJoining ? "Joining..." : "Join game"}
           </button>

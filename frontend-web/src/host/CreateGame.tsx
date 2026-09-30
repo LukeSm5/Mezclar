@@ -15,10 +15,10 @@ import {
 } from "./gameFilters";
 import GameFilterPopover from "./GameFilterPopover";
 import "./CreateGame.css";
-import { toggleAutoNames } from "../api/client";
 
 export default function CreateGame() {
   const navigate = useNavigate();
+  const [hostName, setHostName] = useState("");
   const [gameId, setGameId] = useState("");
   const [options, setOptions] = useState<GameOptionValues>(defaultOptionValues);
   const [isCreating, setIsCreating] = useState(false);
@@ -36,15 +36,17 @@ export default function CreateGame() {
   }
 
   async function handleStart() {
-    if (!selectedGame || isCreating) return;
+    if (!selectedGame || !hostName.trim() || isCreating) return;
 
     setIsCreating(true);
     setError("");
 
     try {
 
-      const response = await fetch("http://127.0.0.1:8000/session", {
+      const response = await fetch("/api/session", {
         method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ host_name: hostName.trim(), settings: { gameId: selectedGame.id, options } }),
       });
 
       if (!response.ok) {
@@ -53,7 +55,7 @@ export default function CreateGame() {
 
       const data: { session_id: string } = await response.json();
 
-      navigate("/host/lobby", {
+      navigate("/host/lobby/" + data.session_id, {
         state: {
           sessionId: data.session_id,
           gameId: selectedGame.id,
@@ -69,9 +71,6 @@ export default function CreateGame() {
     } finally {
       setIsCreating(false);
     }
-    // No session exists yet — the backend has no create-session endpoint, so
-    // the chosen config rides along in router state for the lobby to show.
-    // navigate("/host/lobby", { state: { gameId: selectedGame.id, options } });
   }
 
   return (
@@ -88,6 +87,18 @@ export default function CreateGame() {
             on the next screen, and players can join right up until you start.
           </p>
         </header>
+
+        <section className="create__section" aria-labelledby="host-heading">
+          <h2 className="create__heading" id="host-heading">Your name</h2>
+          <input
+            className="create__name"
+            value={hostName}
+            onChange={(event) => setHostName(event.target.value)}
+            placeholder="Host name"
+            maxLength={40}
+            autoComplete="name"
+          />
+        </section>
 
         <section className="create__section" aria-labelledby="game-heading">
           <div className="create__heading-row">
@@ -154,13 +165,14 @@ export default function CreateGame() {
         </section>
 
         <div className="create__actions">
+          {error && <p className="create__hint" role="alert">{error}</p>}
           <button
             className="create__start"
             type="button"
             onClick={handleStart}
-            disabled={!selectedGame}
+            disabled={!selectedGame || !hostName.trim() || isCreating}
           >
-            Start game
+            {isCreating ? "Creating..." : "Create lobby"}
           </button>
           {!selectedGame && (
             <p className="create__hint">Choose a game to continue.</p>

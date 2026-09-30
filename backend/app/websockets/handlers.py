@@ -30,8 +30,16 @@ async def handle_join(
             "session_id": session.session_id,
             "player_id": player.player_id,
             "name": player.name,
+            "ready": player.ready,
         }
     )
+
+    if session.game_started:
+        await websocket.send_json({
+            "type": "game_started",
+            "session_id": session.session_id,
+            "game_id": session.game_id,
+        })
 
     try:
         while True:

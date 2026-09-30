@@ -1,13 +1,19 @@
+from copy import deepcopy
+from pydantic import JsonValue
+
 from backend.app.naming.generator import generate_unique_name
 from backend.app.sessions.player import Player
 
 class Session:
-    def __init__(self, session_id: str):
+    def __init__(self, session_id: str, host_name: str = "Host", settings: dict[str, JsonValue] | None = None):
         self.session_id = session_id
+        self.host_name = host_name
+        self.settings = deepcopy(settings) if settings is not None else {}
 
         self.players: dict[str, "Player"] = {}
 
-        self.auto_generate_names: bool = False
+        options = self.settings.get("options", {})
+        self.auto_generate_names: bool = isinstance(options, dict) and options.get("autoGenerateNames") is True
         self.used_names: set[str] = set()
 
         # Game configuration
@@ -184,3 +190,10 @@ class Session:
         new_name = self.assign_name()
         player.name = new_name
         return new_name
+
+    def set_player_ready(self, player_id: str, ready: bool) -> Player:
+        player = self.get_player(player_id)
+        if player is None:
+            raise ValueError("Player not found")
+        player.ready = ready
+        return player

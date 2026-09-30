@@ -14,3 +14,39 @@ export interface SubmitNameRequest {
     player_id: string;
     requested_name: string;
 }
+
+export interface SessionPlayer {
+  player_id: string;
+  name: string;
+  ready: boolean;
+}
+
+export interface JoinSessionResponse extends SessionPlayer {
+  session_id: string;
+}
+
+export interface UpdateReadyStatusRequest {
+  ready: boolean;
+}
+
+export interface StartGameRequest {
+  game_id: string;
+  minimum_players: number;
+  maximum_players: number;
+}
+
+export interface SessionResponse {
+  session_id: string;
+  host_name: string;
+  settings: {
+    gameId?: string;
+    options?: Record<string, boolean>;
+  };
+  player_count: number;
+  players: SessionPlayer[];
+  auto_generate_names: boolean;
+  game_started: boolean;
+  game_id: string | null;
+  minimum_players: number | null;
+  maximum_players: number | null;
+}
