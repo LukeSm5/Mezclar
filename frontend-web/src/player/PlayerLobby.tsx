@@ -1,10 +1,12 @@
 import { useEffect, useState } from "react";
 import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
+import { GAMES } from "../host/games";
 
 interface PlayerLobbyState {
   playerId?: string;
   playerName?: string;
   sessionId?: string;
+  gameId?: string;
 }
 
 interface GameStartedMessage {
@@ -24,6 +26,8 @@ export default function PlayerLobby() {
   const sessionId = state?.sessionId ?? code;
   const playerId = state?.playerId;
   const playerName = state?.playerName ?? "Player";
+  const gameId = state?.gameId;
+  const game = GAMES.find((game) => game.id === gameId);
 
   const [connectionStatus, setConnectionStatus] = useState(
     "Connecting..."
@@ -100,6 +104,41 @@ export default function PlayerLobby() {
       <p>
         Welcome to the game, {playerName}.
       </p>
+
+      {game && (
+        <section
+          style={{
+            margin: "24px 0",
+            padding: 24,
+            border: "1px solid var(--border)",
+            borderRadius: 12,
+            textAlign: "left",
+          }}
+        >
+          <h2 style={{ marginTop: 0, textAlign: "center" }}>
+            {game.name}
+          </h2>
+
+          <h3 style={{ marginBottom: 8 }}>Rules</h3>
+
+          <ul
+            style={{
+              marginTop: 0,
+              paddingLeft: 24,
+              color: "var(--text-muted)",
+              lineHeight: 1.6,
+            }}
+          >
+            {game.rules
+              .trim()
+              .split("\n")
+              .filter((rule) => rule.trim())
+              .map((rule, index) => (
+                <li key={index}>{rule.trim()}</li>
+              ))}
+          </ul>
+        </section>
+      )}
 
       <section
         style={{

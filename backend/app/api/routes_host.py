@@ -3,6 +3,7 @@ from backend.app.models.schemas import (
     SessionPlayerResponse,
     SessionResponse,
     StartGameRequest,
+    CreateSessionRequest
 )
 from fastapi import APIRouter, HTTPException
 from backend.app.sessions.registry import get_or_create_session, session_exists, get_session
@@ -20,17 +21,21 @@ def toggle_auto_names(session_id: str, request: ToggleAutoNamesRequest) -> None:
     session.set_auto_generate(request.enabled)
 
 @router.post("/session")
-def create_session() -> dict[str, str]:
+def create_session(request: CreateSessionRequest) -> dict[str, str]:
+    print("Create Session")
     while True:
         session_id = generate_session_code()
 
         if not session_exists(session_id):
             break
 
-    get_or_create_session(session_id)
+    session = get_or_create_session(session_id)
+
+    session.game_id = request.game_id
 
     return {
-        "session_id": session_id
+        "session_id": session_id,
+        "game_id": session.game_id,
     }
 
 @router.get("/session/{session_id}", response_model=SessionResponse)

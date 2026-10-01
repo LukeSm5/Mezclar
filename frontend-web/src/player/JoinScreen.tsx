@@ -7,6 +7,7 @@ interface JoinSessionResponse {
   player_id: string;
   name: string;
   session_id: string;
+  game_id: string;
 }
 
 export default function JoinScreen() {
@@ -55,6 +56,7 @@ export default function JoinScreen() {
           playerId: sessionData.player_id,
           playerName: sessionData.name,
           sessionId: sessionData.session_id,
+          gameId: sessionData.game_id,
         },
       });
     } catch (error) {

@@ -3,6 +3,7 @@ from backend.app.models.schemas import (
     RegenerateNameRequest,
     JoinSessionRequest,
     JoinSessionResponse,
+    SubmitNameRequest
 )
 
 from fastapi import APIRouter, HTTPException
@@ -30,7 +31,10 @@ def submit_name(session_id: str, request: SubmitNameRequest) -> GenerateNameResp
     return GenerateNameResponse(name=name)
 
 @router.post("/session/{session_id}/join", response_model=JoinSessionResponse)
-def join_session(session_id: str, request: JoinSessionRequest) -> JoinSessionResponse:
+def join_session(
+    session_id: str,
+    request: JoinSessionRequest
+) -> JoinSessionResponse:
     session = get_session(session_id)
 
     if not session:
@@ -39,17 +43,36 @@ def join_session(session_id: str, request: JoinSessionRequest) -> JoinSessionRes
             detail="Session not found",
         )
 
+    if session.game_id is None:
+        raise HTTPException(
+            status_code=400,
+            detail="Game has not been configured for this session.",
+        )
+
     if request.player_id in session.players:
         player = session.get_player(request.player_id)
 
-        return JoinSessionResponse(player_id=player.player_id, name=player.name, session_id=session_id)
+        return JoinSessionResponse(
+            player_id=player.player_id,
+            name=player.name,
+            session_id=session_id,
+            game_id=session.game_id,
+        )
 
     try:
-        player = session.add_player(player_id=request.player_id, requested_name=request.name,)
+        player = session.add_player(
+            player_id=request.player_id,
+            requested_name=request.name,
+        )
     except ValueError as error:
         raise HTTPException(
             status_code=400,
             detail=str(error),
         )
 
-    return JoinSessionResponse(player_id=player.player_id, name=player.name, session_id=session_id)
+    return JoinSessionResponse(
+        player_id=player.player_id,
+        name=player.name,
+        session_id=session_id,
+        game_id=session.game_id,
+    )

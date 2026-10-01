@@ -17,6 +17,7 @@ class JoinSessionResponse(BaseModel):
     player_id: str
     name: str
     session_id: str
+    game_id:str
 
 class SessionPlayerResponse(BaseModel):
     player_id: str
@@ -36,3 +37,6 @@ class StartGameRequest(BaseModel):
 class SubmitNameRequest(BaseModel):
     player_id: str
     requested_name: str
+
+class CreateSessionRequest(BaseModel):
+    game_id: str

@@ -1,19 +1,25 @@
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect
 
-from backend.app.sessions.registry import get_or_create_session
+from backend.app.sessions.registry import get_or_create_session, get_session
 from backend.app.websockets.handlers import handle_join
 
 router = APIRouter()
 
-@router.websocket("/ws/{session_id}/{player_id}")
-async def websocket_endpoint(websocket: WebSocket, session_id: str, player_id: str):
-    await websocket.accept()
-    session = get_or_create_session(session_id)
-    try:
-        while True:
-            data = await websocket.receive_json()
+@router.websocket("/ws/session/{session_id}/player/{player_id}")
+async def player_websocket(
+    websocket: WebSocket,
+    session_id: str,
+    player_id: str,
+) -> None:
+    session = get_session(session_id)
 
-            if data["type"] == "join":
-                await handle_join(websocket, session, player_id, data.get("requested_name"))
-    except WebSocketDisconnect:
-        print(f"Player {player_id} disconnected from session {session_id}")
+    if session is None:
+        await websocket.close(code=1008)
+        return
+
+    await handle_join(
+        websocket=websocket,
+        session=session,
+        player_id=player_id,
+        requested_name=None,
+    )
