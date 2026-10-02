@@ -20,7 +20,7 @@ def regenerate_name(session_id: str, request: RegenerateNameRequest) -> Generate
     try:
         name = session.regenerate_name(request.player_id)
     except ValueError as e:
-        raise ValueError(str(e))
+        raise HTTPException(status_code=400, detail=str(e))
     return GenerateNameResponse(name=name)
 
 @router.post("/session/{session_id}/submit-name")
@@ -29,7 +29,7 @@ def submit_name(session_id: str, request: SubmitNameRequest) -> GenerateNameResp
     try:
         name = session.submit_name(request.player_id, request.requested_name)
     except ValueError as e:
-        raise ValueError(str(e))
+        raise HTTPException(status_code=400, detail=str(e))
     return GenerateNameResponse(name=name)
 
 @router.post("/session/{session_id}/join", response_model=JoinSessionResponse)

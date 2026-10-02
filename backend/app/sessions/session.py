@@ -33,9 +33,6 @@ class Session:
 
     def submit_name(self, player_id: str, requested_name: str) -> str:
         pass
-
-    def submit_name(self, player_id: str, requested_name: str) -> str:
-        pass
     
     def assign_name(self, requested_name: str | None = None) -> str:
         if requested_name is not None:

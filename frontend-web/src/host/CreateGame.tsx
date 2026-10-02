@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { GAMES, formatPlayerRange, formatTimeRange } from "./games";
+import { createSession } from "../api/client";
 import GameSelect from "./GameSelect";
 import {
   GAME_OPTIONS,
@@ -42,55 +43,17 @@ export default function CreateGame() {
     setError("");
 
     try {
-
-      const response = await fetch("/api/session", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          host_name: hostName.trim(),
-          settings: {
-            gameId: selectedGame.id,
-            options,
-          },
-        }),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        console.error("Create session failed:", data);
-        throw new Error(
-          data.detail
-            ? JSON.stringify(data.detail)
-            : `Server returned status ${response.status}`
-        );
-      }
-      
-      // const response = await fetch("/api/session", {
-      //   method: "POST",
-      //   headers: { "Content-Type": "application/json" },
-      //   body: JSON.stringify({ host_name: hostName.trim(), settings: { gameId: selectedGame.id, options } }),
-      // });
-
-      // if (!response.ok) {
-      //   throw new Error(`Server returned status ${response.status}`);
-      // }
-
-      // const data: { session_id: string } = await response.json();
-
-      navigate("/host/lobby/" + data.session_id, {
+      const session = await createSession(hostName.trim(), selectedGame.id, options);
+      navigate("/host/lobby/", {
         state: {
-          sessionId: data.session_id,
+          sessionId: session.session_id,
           gameId: selectedGame.id,
           options,
         },
       });
-
     } catch (error) {
-
       console.error("Failed to create session:", error);
-      setError("Unable to create a game session. Please try again.");
-
+      setError(error instanceof Error ? error.message : "Failed to create session. Please try again.");
     } finally {
       setIsCreating(false);
     }

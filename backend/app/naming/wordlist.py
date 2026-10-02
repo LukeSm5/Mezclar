@@ -1,5 +1,5 @@
-ADJECTIVE_LIST = ["happy"]
-NOUN_LIST = ["person"]
+ADJECTIVE_LIST = ["Happy", "Jolly", "Cheerful", "Studious", "Diabolical", "Mysterious", "Brave", "Clever", "Fierce"]
+NOUN_LIST = ["Person", "Chinchilla", "Giraffe", "Officer", "Count", "Wizard", "Witch", "Warlock", "Dragon"]
 BLOCK_LIST = []
 
 def get_adjectives() -> list[str]:
