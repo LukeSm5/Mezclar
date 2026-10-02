@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import type { FormEvent } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import "./JoinScreen.css";
-import { getSession, type SessionResponse } from "../api/client";
+import { getSession, type SessionResponse, joinSession } from "../api/client";
 
 interface JoinSessionResponse {
   player_id: string;
@@ -36,6 +36,21 @@ export default function JoinScreen() {
     });
     return () => { active = false; };
   }, [code]);
+
+  useEffect(() => {
+  if (!code || !session || !session.auto_generate_names || name.trim()) return;
+
+  const playerId = sessionStorage.getItem("mezclar-player:" + code) ?? crypto.randomUUID();
+
+  joinSession(code, playerId, "")
+    .then((result) => {
+      sessionStorage.setItem("mezclar-player:" + code, result.player_id);
+      setName(result.name);
+    })
+    .catch((error) => {
+      console.error("Failed to pre-generate name:", error);
+    });
+}, [code, session]);
 
   async function handleSubmit(event: FormEvent) {
     event.preventDefault();
