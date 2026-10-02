@@ -6,12 +6,13 @@ export async function toggleAutoNames(sessionId: string, enabled: boolean): Prom
   }));
 }
 
-export async function regenerateName(sessionId: string, player_id: string): Promise<void> {
-  await apiResponse(await fetch(`/api/session/${sessionId}/regenerate-name`, {
+export async function regenerateName(sessionId: string, player_id: string): Promise<string> {
+  const data = await apiResponse<{ name : string }>(await fetch(`/api/session/${sessionId}/regenerate-name`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ player_id }),
   }));
+  return data.name;
 }
 
 import type {

@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import type { FormEvent } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import "./JoinScreen.css";
-import { getSession, type SessionResponse, joinSession } from "../api/client";
+import { getSession, type SessionResponse, joinSession, regenerateName } from "../api/client";
 
 interface JoinSessionResponse {
   player_id: string;
@@ -52,6 +52,20 @@ export default function JoinScreen() {
     });
 }, [code, session]);
 
+  async function handleRegenerate() {
+    if (!code) {
+      return;
+    }
+    const playerId = sessionStorage.getItem("mezclar-player:" + code);
+    if (!playerId) return;
+
+    try {
+      const newName = await regenerateName(code, playerId);
+      setName(newName);
+    } catch (error) {
+      console.error("Failed to regenerate name:", error);
+    }
+  }
   async function handleSubmit(event: FormEvent) {
     event.preventDefault();
 
@@ -126,18 +140,26 @@ export default function JoinScreen() {
           <label className="join__label" htmlFor="player-name">
             Your name
           </label>
-
-          <input
-            id="player-name"
-            className="join__name"
-            type="text"
-            value={name}
-            onChange={(event) => setName(event.target.value)}
-            placeholder="Enter your name"
-            maxLength={30}
-            autoComplete="off"
-            autoFocus
-          />
+          <div className="join_input_row">
+            <input
+              id="player-name"
+              className="join__name"
+              type="text"
+              value={name}
+              onChange={(event) => setName(event.target.value)}
+              placeholder="Enter your name"
+              maxLength={30}
+              autoComplete="off"
+              autoFocus
+            />
+            <button
+              type="button"
+              className="join-regenerate-button"
+              onClick={handleRegenerate}
+            >
+              ↻
+            </button>
+          </div>
 
           {session?.auto_generate_names && <p>Leave blank for a generated name.</p>}
 

@@ -6,6 +6,30 @@
   padding: 24px 16px;
 }
 
+.join_input_row {
+  display: flex;
+  width: 300px;
+  margin: 0 auto 16px auto;
+  gap: 8px;
+  align-items: center;
+}
+
+.join-regenerate-button {
+  flex-shrink: 0;
+  width: 48px;
+  height: 48px;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(255, 255, 255, 0.15);
+  border: 1.5px solid rgba(255, 255, 255, 0.6);
+  border-radius: 50%;
+  color: #fff;
+  font-size: 20px;
+  cursor: pointer;
+}
+
 .join__inner {
   grid-row: 2;
   width: 100%;
@@ -67,6 +91,7 @@
 }
 
 .join__name {
+  flex: 1;
   width: 100%;
   box-sizing: border-box;
   padding: 18px 16px;
@@ -185,14 +210,4 @@
   border: 1px solid #ccc;
   border-right: none;
   border-radius: 6px 0 0 6px;
-}
-
-.join-regenerate-button {
-  padding: 0 14px;
-  height: 43px;
-  box-sizing: border-box;
-  background-color: #555;
-  border: 1px solid #ccc;
-  border-radius: 0 6px 6px 0;
-  cursor: pointer;
 }
