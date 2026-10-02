@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
-import { GAMES } from "../host/games";
+
+import { playerSocketUrl, updateReadyStatus } from "../api/client";
 
 interface PlayerLobbyState {
   playerId?: string;
@@ -24,10 +25,10 @@ export default function PlayerLobby() {
   const navigate = useNavigate();
 
   const sessionId = state?.sessionId ?? code;
-  const playerId = state?.playerId;
-  const playerName = state?.playerName ?? "Player";
-  const gameId = state?.gameId;
-  const game = GAMES.find((game) => game.id === gameId);
+  const playerId = state?.playerId ?? (sessionId ? sessionStorage.getItem("mezclar-player:" + sessionId) : null);
+  const [playerName, setPlayerName] = useState(state?.playerName ?? "Player");
+  const [ready, setReady] = useState(false);
+  const [saving, setSaving] = useState(false);
 
   const [connectionStatus, setConnectionStatus] = useState(
     "Connecting..."
@@ -42,19 +43,28 @@ export default function PlayerLobby() {
       return;
     }
 
+    let active = true;
+    let connectedName = state?.playerName ?? "Player";
     const websocket = new WebSocket(
-      `ws://127.0.0.1:8000/ws/session/${sessionId}/player/${playerId}`
+      playerSocketUrl(sessionId, playerId)
     );
 
     websocket.onopen = () => {
+      if (!active) return;
       setConnectionStatus("Connected");
       setError("");
     };
 
     websocket.onmessage = (event) => {
+      if (!active) return;
       try {
         const message = JSON.parse(event.data);
 
+        if (message.type === "connected") {
+          connectedName = message.name;
+          setPlayerName(message.name);
+          setReady(message.ready);
+        }
         if (message.type === "game_started") {
           const gameStartedMessage =
             message as GameStartedMessage;
@@ -62,7 +72,7 @@ export default function PlayerLobby() {
           navigate(`/player/${sessionId}/game`, {
             state: {
               playerId,
-              playerName,
+              playerName: connectedName,
               sessionId,
               gameId: gameStartedMessage.game_id,
             },
@@ -77,18 +87,34 @@ export default function PlayerLobby() {
     };
 
     websocket.onerror = () => {
+      if (!active) return;
       setConnectionStatus("Connection error");
       setError("Unable to connect to the game server.");
     };
 
     websocket.onclose = () => {
+      if (!active) return;
       setConnectionStatus("Disconnected");
     };
 
     return () => {
+      active = false;
       websocket.close();
     };
-  }, [navigate, playerId, playerName, sessionId]);
+  }, [navigate, playerId, state?.playerName, sessionId]);
+
+  async function handleReady() {
+    if (!sessionId || !playerId || saving) return;
+    setSaving(true);
+    setError("");
+    try {
+      setReady((await updateReadyStatus(sessionId, playerId, !ready)).ready);
+    } catch (error) {
+      setError(error instanceof Error ? error.message : "Could not update ready status.");
+    } finally {
+      setSaving(false);
+    }
+  }
 
   return (
     <main
@@ -172,6 +198,33 @@ export default function PlayerLobby() {
         <p style={{ color: "var(--text-muted)" }}>
           The game will begin when the host starts it.
         </p>
+
+        <p aria-live="polite" style={{ color: "var(--text-muted)" }}>
+          {ready ? "You are ready." : "You are not ready yet."}
+        </p>
+
+        <button
+          type="button"
+          aria-pressed={ready}
+          disabled={!playerId || saving || connectionStatus !== "Connected"}
+          onClick={handleReady}
+          style={{
+            width: "100%",
+            marginTop: 16,
+            padding: 16,
+            border: "none",
+            borderRadius: 12,
+            background: "var(--accent)",
+            color: "var(--accent-text)",
+            fontFamily: "inherit",
+            fontSize: 16,
+            fontWeight: 700,
+            cursor: playerId && !saving ? "pointer" : "not-allowed",
+            opacity: playerId && !saving ? 1 : 0.4,
+          }}
+        >
+          {saving ? "Updating..." : ready ? "Mark not ready" : "I'm ready"}
+        </button>
 
         <p
           style={{

@@ -15,6 +15,7 @@ export default function App() {
       <Route path="/player/:code" element={<PlayerLobby />} />
       <Route path="/player/:code/game" element={<GameLanding />} />
       <Route path="/host/new" element={<CreateGame />} />
+      <Route path="/host/lobby/:code" element={<LobbyView />} />
       <Route path="/host/lobby" element={<LobbyView />} />
       <Route path="/about" element={<About />} />
       <Route path="*" element={<Navigate to="/" replace />} />
