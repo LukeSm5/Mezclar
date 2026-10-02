@@ -46,14 +46,37 @@ export default function CreateGame() {
       const response = await fetch("/api/session", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ host_name: hostName.trim(), settings: { gameId: selectedGame.id, options } }),
+        body: JSON.stringify({
+          host_name: hostName.trim(),
+          settings: {
+            gameId: selectedGame.id,
+            options,
+          },
+        }),
       });
 
-      if (!response.ok) {
-        throw new Error(`Server returned status ${response.status}`);
-      }
+      const data = await response.json();
 
-      const data: { session_id: string } = await response.json();
+      if (!response.ok) {
+        console.error("Create session failed:", data);
+        throw new Error(
+          data.detail
+            ? JSON.stringify(data.detail)
+            : `Server returned status ${response.status}`
+        );
+      }
+      
+      // const response = await fetch("/api/session", {
+      //   method: "POST",
+      //   headers: { "Content-Type": "application/json" },
+      //   body: JSON.stringify({ host_name: hostName.trim(), settings: { gameId: selectedGame.id, options } }),
+      // });
+
+      // if (!response.ok) {
+      //   throw new Error(`Server returned status ${response.status}`);
+      // }
+
+      // const data: { session_id: string } = await response.json();
 
       navigate("/host/lobby/" + data.session_id, {
         state: {

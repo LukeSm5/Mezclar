@@ -4,7 +4,6 @@ from backend.app.models.schemas import (
     SessionPlayerResponse,
     SessionResponse,
     StartGameRequest,
-    CreateSessionRequest
 )
 from fastapi import APIRouter, HTTPException
 from backend.app.sessions.registry import get_or_create_session, get_session

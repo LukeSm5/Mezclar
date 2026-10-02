@@ -31,6 +31,7 @@ async def handle_join(
             "player_id": player.player_id,
             "name": player.name,
             "ready": player.ready,
+            "game_id": session.settings.get("gameId"),
         }
     )
 

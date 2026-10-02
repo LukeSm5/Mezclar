@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 
+import { GAMES } from "../host/games";
 import { playerSocketUrl, updateReadyStatus } from "../api/client";
 
 interface PlayerLobbyState {
@@ -16,6 +17,15 @@ interface GameStartedMessage {
   game_id: string;
 }
 
+interface ConnectedMessage {
+  type: "connected";
+  session_id: string;
+  player_id: string;
+  name: string;
+  ready: boolean;
+  game_id: string;
+}
+
 export default function PlayerLobby() {
   const { code } = useParams<{ code: string }>();
   const { state } = useLocation() as {
@@ -27,6 +37,7 @@ export default function PlayerLobby() {
   const sessionId = state?.sessionId ?? code;
   const playerId = state?.playerId ?? (sessionId ? sessionStorage.getItem("mezclar-player:" + sessionId) : null);
   const [playerName, setPlayerName] = useState(state?.playerName ?? "Player");
+  const [gameId, setGameId] = useState<string | null>(state?.gameId ?? null);
   const [ready, setReady] = useState(false);
   const [saving, setSaving] = useState(false);
 
@@ -35,6 +46,8 @@ export default function PlayerLobby() {
   );
 
   const [error, setError] = useState("");
+
+  const game = GAMES.find((game) => game.id === gameId);
 
   useEffect(() => {
     if (!sessionId || !playerId) {
@@ -61,9 +74,12 @@ export default function PlayerLobby() {
         const message = JSON.parse(event.data);
 
         if (message.type === "connected") {
-          connectedName = message.name;
-          setPlayerName(message.name);
-          setReady(message.ready);
+          const connectedMessage = message as ConnectedMessage;
+
+          connectedName = connectedMessage.name;
+          setPlayerName(connectedMessage.name);
+          setReady(connectedMessage.ready);
+          setGameId(connectedMessage.game_id);
         }
         if (message.type === "game_started") {
           const gameStartedMessage =

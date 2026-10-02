@@ -45,12 +45,6 @@ def join_session(
             detail="Session not found",
         )
 
-    if session.game_id is None:
-        raise HTTPException(
-            status_code=400,
-            detail="Game has not been configured for this session.",
-        )
-
     if request.player_id in session.players:
         player = session.get_player(request.player_id)
 
@@ -59,7 +53,6 @@ def join_session(
             name=player.name,
             session_id=session_id, 
             ready=player.ready,
-            game_id=session.game_id,
         )
 
     try:
@@ -73,7 +66,7 @@ def join_session(
             detail=str(error),
         )
 
-    return JoinSessionResponse(player_id=player.player_id, name=player.name, session_id=session_id, ready=player.ready, game_id=session.game_id)
+    return JoinSessionResponse(player_id=player.player_id, name=player.name, session_id=session_id, ready=player.ready)
 
 @router.patch("/session/{session_id}/players/{player_id}/ready", response_model=SessionPlayerResponse)
 def update_ready_status(session_id: str, player_id: str, request: UpdateReadyStatusRequest) -> SessionPlayerResponse:

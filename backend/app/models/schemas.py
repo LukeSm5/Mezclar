@@ -20,7 +20,6 @@ class JoinSessionResponse(BaseModel):
     name: str
     session_id: str
     ready: bool
-    game_id:str
 
 class SessionPlayerResponse(BaseModel):
     player_id: str
@@ -53,8 +52,6 @@ class CreateSessionRequest(BaseModel):
 
     host_name: str = Field(default="Host", min_length=1)
     settings: dict[str, JsonValue] = Field(default_factory=dict)
-
-    game_id: str
 
 class UpdateReadyStatusRequest(BaseModel):
     model_config = ConfigDict(extra="forbid")
