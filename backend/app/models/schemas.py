@@ -57,3 +57,10 @@ class UpdateReadyStatusRequest(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     ready: StrictBool
+
+class KickPlayerRequest(BaseModel):
+    player_id: str
+
+class HidePlayerRequest(BaseModel):
+    player_id: str
+    hidden: bool

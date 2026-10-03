@@ -30,9 +30,6 @@ class Session:
 
     def remove_used_name(self, name: str) -> None:
         self.used_names.discard(name)
-
-    def submit_name(self, player_id: str, requested_name: str) -> str:
-        pass
     
     def assign_name(self, requested_name: str | None = None) -> str:
         if requested_name is not None:
@@ -194,3 +191,15 @@ class Session:
             raise ValueError("Player not found")
         player.ready = ready
         return player
+
+    def kick_player(self, player_id: str) -> None:
+        player = self.get_player(player_id)
+        if player is None:
+            raise ValueError(f"Player with ID {player_id} does not exist.")
+        self.remove_player(player.player_id)
+
+    def hide_player(self, player_id: str) -> None:
+        player = self.get_player(player_id)
+        if player is None:
+            raise ValueError(f"Player with ID {player_id} does not exist.")
+        player.hidden = True

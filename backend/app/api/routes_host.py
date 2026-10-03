@@ -1,4 +1,6 @@
 from backend.app.models.schemas import (
+    HidePlayerRequest,
+    KickPlayerRequest,
     ToggleAutoNamesRequest,
     CreateSessionRequest,
     SessionPlayerResponse,
@@ -95,3 +97,43 @@ async def start_game(session_id: str, request: StartGameRequest,) -> dict:
         "game_started": session.game_started,
         "player_count": len(session.players),
     }
+
+@router.post("/session/{session_id}/kick")
+def kick_player(session_id: str, request: KickPlayerRequest) -> dict:
+    session = get_session(session_id)
+
+    if not session:
+        raise HTTPException(
+            status_code=404,
+            detail="Session not found",
+        )
+
+    try:
+        session.kick_player(request.player_id)
+    except ValueError as error:
+        raise HTTPException(
+            status_code=400,
+            detail=str(error),
+        )
+
+    return { "session_id": session.session_id }
+
+@router.post("/session/{session_id}/hide")
+def hide_player(session_id: str, request: HidePlayerRequest) -> dict:
+    session = get_session(session_id)
+
+    if not session:
+        raise HTTPException(
+            status_code=404,
+            detail="Session not found",
+        )
+
+    try:
+        session.hide_player(request.player_id, request.hidden)
+    except ValueError as error:
+        raise HTTPException(
+            status_code=400,
+            detail=str(error),
+        )
+
+    return { "session_id": session.session_id }

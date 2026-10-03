@@ -70,3 +70,31 @@ def test_regenerate_name_existing_player():
         assert session.get_player("existing_player").name == "new_name"
         assert "old_name" not in session.used_names
         assert "new_name" in session.used_names
+
+def test_kick_player_removes_from_session():
+    session = Session("abc123")
+    player = session.add_player("player1", "requested_name")
+    session.kick_player("player1")
+    assert session.get_player("player1") is None
+
+def test_kick_player_frees_name():
+    session = Session("abc123")
+    session.add_player("player1", "requested_name")
+    session.kick_player("player1")
+    assert "requested_name" not in session.used_names
+
+def test_kick_nonexistent_player_raises_error():
+    session = Session("abc123")
+    with pytest.raises(ValueError):
+        session.kick_player("nonexistent_player")
+
+def test_hide_player_sets_flag():
+    session = Session("abc123")
+    player = session.add_player("player1", "requested_name")
+    session.hide_player("player1")
+    assert player.hidden is True
+
+def test_hide_nonexistent_player_raises_error():
+    session = Session("abc123")
+    with pytest.raises(ValueError):
+        session.hide_player("nonexistent_player")

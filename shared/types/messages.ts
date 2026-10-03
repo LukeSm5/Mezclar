@@ -50,3 +50,12 @@ export interface SessionResponse {
   minimum_players: number | null;
   maximum_players: number | null;
 }
+
+export interface KickPlayerRequest {
+  player_id: string;
+}
+
+export interface HidePlayerRequest {
+  player_id: string;
+  hidden: boolean;
+}

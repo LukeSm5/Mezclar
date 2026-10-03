@@ -17,6 +17,7 @@ export async function regenerateName(sessionId: string, player_id: string): Prom
 
 import type {
   JoinSessionResponse,
+  KickPlayerRequest,
   SessionPlayer,
   SessionResponse,
   StartGameRequest,
@@ -83,4 +84,21 @@ export function playerSocketUrl(code: string, playerId: string): string {
   const url = new URL("/ws/session/" + code + "/player/" + playerId, window.location.href);
   url.protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
   return url.href;
+}
+
+export async function kickPlayer(code: string, request: KickPlayerRequest): Promise<void> {
+  return apiResponse(await fetch("/api/session/" + code + "/kick", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(request),
+  }));
+}
+
+export async function hidePlayer(code: string, playerId: string, hidden: boolean): Promise<SessionPlayer> {
+  const player = apiResponse(await fetch("/api/session/" + code + "/hide", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ player_id: playerId, hidden }),
+  }));
+  return player;
 }

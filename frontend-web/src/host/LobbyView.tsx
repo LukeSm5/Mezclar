@@ -175,7 +175,12 @@ export default function LobbyView() {
     }
   }
 
+  function handleKick(playerId: string): Promise<void> {
+  }
 
+  function handleHide(playerId: string): Promise<void> {
+    
+  }
   return (
     <main
       style={{
