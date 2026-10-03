@@ -1,3 +1,12 @@
+import type {
+  JoinSessionResponse,
+  KickPlayerRequest,
+  SessionPlayer,
+  SessionResponse,
+  StartGameRequest,
+  UpdateReadyStatusRequest,
+} from "../../../shared/types/messages";
+
 export async function toggleAutoNames(sessionId: string, enabled: boolean): Promise<void> {
   await apiResponse(await fetch(`/api/session/${sessionId}/toggle-auto-names`, {
     method: "POST",
@@ -14,15 +23,6 @@ export async function regenerateName(sessionId: string, player_id: string): Prom
   }));
   return data.name;
 }
-
-import type {
-  JoinSessionResponse,
-  KickPlayerRequest,
-  SessionPlayer,
-  SessionResponse,
-  StartGameRequest,
-  UpdateReadyStatusRequest,
-} from "../../../shared/types/messages";
 
 export type { SessionPlayer, SessionResponse } from "../../../shared/types/messages";
 

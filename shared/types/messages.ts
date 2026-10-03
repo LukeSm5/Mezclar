@@ -19,6 +19,7 @@ export interface SessionPlayer {
   player_id: string;
   name: string;
   ready: boolean;
+  hidden: boolean;
 }
 
 export interface JoinSessionResponse extends SessionPlayer {

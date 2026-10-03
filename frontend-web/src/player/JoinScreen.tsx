@@ -9,6 +9,7 @@ interface JoinSessionResponse {
   name: string;
   session_id: string;
   game_id: string;
+  hidden: boolean;
 }
 
 export default function JoinScreen() {

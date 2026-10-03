@@ -53,6 +53,7 @@ def join_session(
             name=player.name,
             session_id=session_id, 
             ready=player.ready,
+            hidden=player.hidden
         )
 
     try:
@@ -66,7 +67,7 @@ def join_session(
             detail=str(error),
         )
 
-    return JoinSessionResponse(player_id=player.player_id, name=player.name, session_id=session_id, ready=player.ready)
+    return JoinSessionResponse(player_id=player.player_id, name=player.name, session_id=session_id, ready=player.ready, hidden=player.hidden)
 
 @router.patch("/session/{session_id}/players/{player_id}/ready", response_model=SessionPlayerResponse)
 def update_ready_status(session_id: str, player_id: str, request: UpdateReadyStatusRequest) -> SessionPlayerResponse:
@@ -77,4 +78,4 @@ def update_ready_status(session_id: str, player_id: str, request: UpdateReadySta
         player = session.set_player_ready(player_id, request.ready)
     except ValueError as error:
         raise HTTPException(status_code=404, detail=str(error)) from error
-    return SessionPlayerResponse(player_id=player.player_id, name=player.name, ready=player.ready)
+    return SessionPlayerResponse(player_id=player.player_id, name=player.name, ready=player.ready, hidden=player.hidden)

@@ -67,7 +67,7 @@ def test_join_session_records_player_in_right_lobby(client):
     first, second = [client.post("/session").json()["session_id"] for _ in range(2)]
     response = client.post("/session/" + first + "/join", json={"player_id": "player1", "name": "  Casey  "})
     assert response.status_code == 200
-    player = {"player_id": "player1", "name": "Casey", "ready": False}
+    player = {"player_id": "player1", "name": "Casey", "ready": False, "hidden": False}
     assert response.json() == {**player, "session_id": first}
     assert client.get("/session/" + first).json()["players"] == [player]
     assert client.get("/session/" + second).json()["players"] == []

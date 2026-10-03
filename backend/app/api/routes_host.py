@@ -41,7 +41,7 @@ def get_session_info(session_id: SessionCode) -> SessionResponse:
             detail="Session not found",
         )
 
-    players = [SessionPlayerResponse(player_id=player.player_id, name=player.name, ready=player.ready) for player in session.players.values()]
+    players = [SessionPlayerResponse(player_id=player.player_id, name=player.name, ready=player.ready, hidden=player.hidden) for player in session.players.values()]
 
     return SessionResponse(
         session_id=session.session_id, player_count=len(players), players=players,
@@ -136,4 +136,4 @@ def hide_player(session_id: str, request: HidePlayerRequest) -> SessionPlayerRes
             detail=str(error),
         )
 
-    return SessionPlayerResponse(player_id = player.player_id, name = player.name, ready = player.ready)
+    return SessionPlayerResponse(player_id = player.player_id, name = player.name, ready = player.ready, hidden = player.hidden)

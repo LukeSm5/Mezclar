@@ -2,28 +2,12 @@ import { Link, useLocation, useParams } from "react-router-dom";
 import { GAMES } from "./games";
 import type { GameOptionValues } from "./gameOptions";
 import { useEffect, useState } from "react";
+import { SessionPlayer, SessionResponse} from "../api/client";
 
 interface LobbyState {
   sessionId?: string;
   gameId?: string;
   options?: GameOptionValues;
-}
-
-interface SessionPlayer {
-  player_id: string;
-  name: string;
-  ready: boolean;
-}
-
-interface SessionResponse {
-  session_id: string;
-  player_count: number;
-  players: SessionPlayer[];
-  game_started: boolean;
-  host_name: string;
-  game_id: string | null;
-  settings: { gameId?: string };
-  minimum_players: number | null;
 }
 
 export default function LobbyView() {
@@ -175,11 +159,47 @@ export default function LobbyView() {
     }
   }
 
-  function handleKick(playerId: string): Promise<void> {
+  async function handleKick(playerId: string) {
+    if (!sessionId) {
+      return;
+    }
+    try {
+      const response = await fetch (`/api/session/${sessionId}/kick`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ player_id: playerId }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to kick player.");
+      }
+
+    } catch (error) {
+      console.error("Failed to kick player:", error);
+    }
   }
 
-  function handleHide(playerId: string): Promise<void> {
-    
+  async function handleHide(playerId: string) {
+    if (!sessionId) {
+      return;
+    }
+    try {
+      const response = await fetch (`/api/session/${sessionId}/hide`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ player_id: playerId }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to hide player.");
+      }
+    } catch (error) {
+      console.error("Failed to hide player:", error);
+    }
   }
   return (
     <main
@@ -310,6 +330,13 @@ export default function LobbyView() {
                 {session.players.map((player) => (
                   <li key={player.player_id}>
                     {player.name} &middot; {player.ready ? "Ready" : "Not ready"}
+                    {player.hidden && " · Hidden "}
+                    <button type = "button" onClick = {() => handleKick(player.player_id)}>
+                      Kick
+                    </button>
+                    <button type = "button" onClick = {() => handleHide(player.player_id)}>
+                      {player.hidden ? "Show" : "Hide"}
+                    </button>
                   </li>
                 ))}
               </ul>

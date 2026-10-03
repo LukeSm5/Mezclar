@@ -20,11 +20,13 @@ class JoinSessionResponse(BaseModel):
     name: str
     session_id: str
     ready: bool
+    hidden: bool
 
 class SessionPlayerResponse(BaseModel):
     player_id: str
     name: str
     ready: bool
+    hidden: bool
 
 class SessionResponse(BaseModel):
     session_id: str
