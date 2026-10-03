@@ -95,7 +95,7 @@ export async function kickPlayer(code: string, request: KickPlayerRequest): Prom
 }
 
 export async function hidePlayer(code: string, playerId: string, hidden: boolean): Promise<SessionPlayer> {
-  const player = apiResponse(await fetch("/api/session/" + code + "/hide", {
+  const player = await apiResponse<SessionPlayer>(await fetch("/api/session/" + code + "/hide", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ player_id: playerId, hidden }),

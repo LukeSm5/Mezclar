@@ -112,14 +112,14 @@ def kick_player(session_id: str, request: KickPlayerRequest) -> dict:
         session.kick_player(request.player_id)
     except ValueError as error:
         raise HTTPException(
-            status_code=400,
+            status_code=404,
             detail=str(error),
         )
 
     return { "session_id": session.session_id }
 
 @router.post("/session/{session_id}/hide")
-def hide_player(session_id: str, request: HidePlayerRequest) -> dict:
+def hide_player(session_id: str, request: HidePlayerRequest) -> SessionPlayerResponse:
     session = get_session(session_id)
 
     if not session:
@@ -129,11 +129,11 @@ def hide_player(session_id: str, request: HidePlayerRequest) -> dict:
         )
 
     try:
-        session.hide_player(request.player_id, request.hidden)
+        player = session.hide_player(request.player_id, request.hidden)
     except ValueError as error:
         raise HTTPException(
-            status_code=400,
+            status_code=404,
             detail=str(error),
         )
 
-    return { "session_id": session.session_id }
+    return SessionPlayerResponse(player_id = player.player_id, name = player.name, ready = player.ready)

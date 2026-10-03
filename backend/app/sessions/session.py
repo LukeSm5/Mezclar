@@ -198,8 +198,9 @@ class Session:
             raise ValueError(f"Player with ID {player_id} does not exist.")
         self.remove_player(player.player_id)
 
-    def hide_player(self, player_id: str) -> None:
+    def hide_player(self, player_id: str, hidden: bool = True) -> Player:
         player = self.get_player(player_id)
         if player is None:
             raise ValueError(f"Player with ID {player_id} does not exist.")
-        player.hidden = True
+        player.hidden = hidden
+        return player
