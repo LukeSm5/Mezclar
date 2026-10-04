@@ -25,6 +25,8 @@ export default function LobbyView() {
 
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
+  const [actionMessage, setActionMessage] = useState("");
+  const [actionError, setActionError] = useState("");
 
   const [isStarting, setIsStarting] = useState(false);
   const [startError, setStartError] = useState("");
@@ -159,23 +161,33 @@ export default function LobbyView() {
     }
   }
 
-  async function handleKick(playerId: string) {
+  async function handleKick(player: SessionPlayer) {
     if (!sessionId) {
       return;
     }
+    setActionMessage("")
+    setActionError("")
     try {
       const response = await fetch (`/api/session/${sessionId}/kick`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ player_id: playerId }),
+        body: JSON.stringify({ player_id: player.player_id }),
       });
 
       if (!response.ok) {
         throw new Error("Failed to kick player.");
       }
 
+      setSession((previous) => 
+        previous ? {
+          ...previous,
+          players: previous.players.filter((p) => p.player_id !== player.player_id),
+          player_count: previous.player_count - 1
+        } : previous
+      );
+      setActionMessage(`${player.name} has been kicked from the lobby.`);
     } catch (error) {
       console.error("Failed to kick player:", error);
     }
@@ -320,6 +332,8 @@ export default function LobbyView() {
             </p>
 
             <p aria-live="polite">{readyCount} of {playerCount} players ready</p>
+            {actionMessage && <p role="status">{actionMessage}</p>}
+            {actionError && <p role="alert">{actionError}</p>}
 
             {session && session.players.length > 0 && (
               <ul
@@ -332,7 +346,7 @@ export default function LobbyView() {
                   <li key={player.player_id}>
                     {player.name} &middot; {player.ready ? "Ready" : "Not ready"}
                     {player.hidden && " · Hidden "}
-                    <button type = "button" onClick = {() => handleKick(player.player_id)}>
+                    <button type = "button" onClick = {() => handleKick(player)}>
                       Kick
                     </button>
                     <button type = "button" onClick = {() => handleHide(player)}>
