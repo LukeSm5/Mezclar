@@ -190,6 +190,7 @@ export default function LobbyView() {
       setActionMessage(`${player.name} has been kicked from the lobby.`);
     } catch (error) {
       console.error("Failed to kick player:", error);
+      setActionError(error instanceof Error ? error.message : "Failed to kick player.");
     }
   }
 
@@ -197,6 +198,8 @@ export default function LobbyView() {
     if (!sessionId) {
       return;
     }
+    setActionMessage("")
+    setActionError("")
     const nextHidden = !player.hidden
     try {
       const response = await fetch (`/api/session/${sessionId}/hide`, {
@@ -210,8 +213,17 @@ export default function LobbyView() {
       if (!response.ok) {
         throw new Error("Failed to hide player.");
       }
+
+      setSession((previous) =>
+      previous ? {
+        ...previous,
+        players: previous.players.map((p) => p.player_id === player.player_id ? { ...p, hidden: nextHidden } : p)
+      } : previous
+      )
+      setActionMessage(`${player.name} has been ${nextHidden ? "hidden" : "unhidden"}.`);
     } catch (error) {
       console.error("Failed to hide player:", error);
+      setActionError(error instanceof Error ? error.message : "Failed to hide player.");
     }
   }
   return (

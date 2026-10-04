@@ -11,11 +11,6 @@ interface PlayerLobbyState {
   gameId?: string;
 }
 
-interface KickedMessage {
-  type: "kicked";
-  session_id: string;
-}
-
 interface GameStartedMessage {
   type: "game_started";
   session_id: string;
