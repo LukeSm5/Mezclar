@@ -48,8 +48,10 @@ class ConnectionManager:
 
         if websocket is None:
             return
-
-        await websocket.send_json(message)
+        try:
+            await websocket.send_json(message)
+        except Exception:
+            self.disconnect(session_id, player_id)
 
     async def broadcast_to_session(
         self,
@@ -72,5 +74,17 @@ class ConnectionManager:
         for player_id in disconnected_players:
             self.disconnect(session_id, player_id)
 
+    async def disconnect_player(self, session_id: str, player_id: str, code: int = 4403) -> None:
+        websocket = self.active_connections.get(session_id, {}).get(player_id)
+
+        self.disconnect(session_id, player_id)
+
+        if websocket is None:
+            return
+
+        try:
+            await websocket.close(code=code)
+        except Exception:
+            pass
 
 connection_manager = ConnectionManager()

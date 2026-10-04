@@ -11,6 +11,11 @@ interface PlayerLobbyState {
   gameId?: string;
 }
 
+interface KickedMessage {
+  type: "kicked";
+  session_id: string;
+}
+
 interface GameStartedMessage {
   type: "game_started";
   session_id: string;
@@ -73,6 +78,11 @@ export default function PlayerLobby() {
       try {
         const message = JSON.parse(event.data);
 
+        if (message.type === "kicked") {
+          leaveLobby("You have been kicked from the session.")
+          return;
+        }
+
         if (message.type === "connected") {
           const connectedMessage = message as ConnectedMessage;
 
@@ -108,8 +118,12 @@ export default function PlayerLobby() {
       setError("Unable to connect to the game server.");
     };
 
-    websocket.onclose = () => {
+    websocket.onclose = (event) => {
       if (!active) return;
+      if (event.code === 4403) {
+        leaveLobby("You are no longer in this lobby")
+        return;
+      }
       setConnectionStatus("Disconnected");
     };
 
@@ -117,6 +131,15 @@ export default function PlayerLobby() {
       active = false;
       websocket.close();
     };
+
+    function leaveLobby(notice: string) {
+      active = false;
+      websocket.close();
+      if (sessionId) {
+        sessionStorage.removeItem("mezclar-player:" + sessionId)
+      }
+      navigate("/", { replace: true, state: { notice } });
+    }
   }, [navigate, playerId, state?.playerName, sessionId]);
 
   async function handleReady() {

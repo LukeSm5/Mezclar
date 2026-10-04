@@ -2,7 +2,7 @@ import { Link, useLocation, useParams } from "react-router-dom";
 import { GAMES } from "./games";
 import type { GameOptionValues } from "./gameOptions";
 import { useEffect, useState } from "react";
-import { SessionPlayer, SessionResponse} from "../api/client";
+import type { SessionPlayer, SessionResponse} from "../api/client";
 
 interface LobbyState {
   sessionId?: string;
@@ -181,17 +181,18 @@ export default function LobbyView() {
     }
   }
 
-  async function handleHide(playerId: string) {
+  async function handleHide(player: SessionPlayer) {
     if (!sessionId) {
       return;
     }
+    const nextHidden = !player.hidden
     try {
       const response = await fetch (`/api/session/${sessionId}/hide`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ player_id: playerId }),
+        body: JSON.stringify({ player_id: player.player_id, hidden: nextHidden }),
       });
 
       if (!response.ok) {
@@ -334,7 +335,7 @@ export default function LobbyView() {
                     <button type = "button" onClick = {() => handleKick(player.player_id)}>
                       Kick
                     </button>
-                    <button type = "button" onClick = {() => handleHide(player.player_id)}>
+                    <button type = "button" onClick = {() => handleHide(player)}>
                       {player.hidden ? "Show" : "Hide"}
                     </button>
                   </li>
