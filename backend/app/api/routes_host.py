@@ -99,7 +99,7 @@ async def start_game(session_id: str, request: StartGameRequest,) -> dict:
     }
 
 @router.post("/session/{session_id}/kick")
-def kick_player(session_id: str, request: KickPlayerRequest) -> dict:
+async def kick_player(session_id: str, request: KickPlayerRequest) -> dict:
     session = get_session(session_id)
 
     if not session:
@@ -115,6 +115,12 @@ def kick_player(session_id: str, request: KickPlayerRequest) -> dict:
             status_code=404,
             detail=str(error),
         )
+
+    await connection_manager.send_to_player(
+        session_id, request.player_id,
+        {"type": "kicked", "session_id": session_id},
+    )
+    await connection_manager.disconnect_player(session_id, request.player_id)
 
     return { "session_id": session.session_id }
 

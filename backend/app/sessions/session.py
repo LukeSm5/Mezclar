@@ -33,6 +33,8 @@ class Session:
     
     def assign_name(self, requested_name: str | None = None) -> str:
         if requested_name is not None:
+            if requested_name.casefold() in {name.casefold() for name in self.used_names}:
+                raise ValueError("That name is already taken.")
             self.add_used_name(requested_name)
             return requested_name
 

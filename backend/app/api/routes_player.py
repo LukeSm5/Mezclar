@@ -6,13 +6,11 @@ from backend.app.models.schemas import (
     SubmitNameRequest,
     UpdateReadyStatusRequest,
     SessionPlayerResponse,
-    KickPlayerRequest
 )
 
 from fastapi import APIRouter, HTTPException
 from backend.app.sessions.registry import get_or_create_session, get_session
 from backend.app.naming.generator import generate_unique_name
-from backend.app.websockets.connection_manager import connection_manager
 
 router = APIRouter()
 
@@ -81,21 +79,3 @@ def update_ready_status(session_id: str, player_id: str, request: UpdateReadySta
     except ValueError as error:
         raise HTTPException(status_code=404, detail=str(error)) from error
     return SessionPlayerResponse(player_id=player.player_id, name=player.name, ready=player.ready, hidden=player.hidden)
-
-@router.post("/session/{session_id}/kick")
-async def kick_player(session_id: str, request: KickPlayerRequest):
-    session = get_session(session_id)
-    if session is None:
-        raise HTTPException(status_code=404, detail="Session not found")
-    try:
-        session.kick_player(request.player_id)
-    except ValueError as error:
-        raise HTTPException(status_code=404, detail=str(error)) from error
-    await connection_manager.send_to_player(
-        session_id, request.player_id,
-        {"type": "kicked", "session_id": session_id},
-    )
-
-    await connection_manager.disconnect_player(session_id, request.player_id)
-
-    return {"status": "ok"}
