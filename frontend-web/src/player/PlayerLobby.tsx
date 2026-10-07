@@ -48,6 +48,7 @@ export default function PlayerLobby() {
   const [error, setError] = useState("");
 
   const game = GAMES.find((game) => game.id === gameId);
+  const rules = game?.rules?.split("\n").map((rule) => rule.trim()).filter(Boolean) ?? [];
 
   useEffect(() => {
     if (!sessionId || !playerId) {
@@ -111,6 +112,7 @@ export default function PlayerLobby() {
       if (!active) return;
       setConnectionStatus("Connection error");
       setError("Unable to connect to the game server.");
+      setGameId(null);
     };
 
     websocket.onclose = (event) => {
@@ -120,6 +122,8 @@ export default function PlayerLobby() {
         return;
       }
       setConnectionStatus("Disconnected");
+      setError("Lost connection to the game server.");
+      setGameId(null);
     };
 
     return () => {
@@ -181,22 +185,24 @@ export default function PlayerLobby() {
 
           <h3 style={{ marginBottom: 8 }}>Rules</h3>
 
-          <ul
-            style={{
-              marginTop: 0,
-              paddingLeft: 24,
-              color: "var(--text-muted)",
-              lineHeight: 1.6,
-            }}
-          >
-            {game.rules
-              .trim()
-              .split("\n")
-              .filter((rule) => rule.trim())
-              .map((rule, index) => (
-                <li key={index}>{rule.trim()}</li>
+          {rules.length > 0 ? (
+            <ul
+              style={{
+                marginTop: 0,
+                paddingLeft: 24,
+                color: "var(--text-muted)",
+                lineHeight: 1.6,
+              }}
+            >
+              {rules.map((rule, index) => (
+                <li key={index}>{rule}</li>
               ))}
-          </ul>
+            </ul>
+          ) : (
+            <p style={{ marginTop: 0, color: "var(--text-muted)" }}>
+              Rules for this game are not available yet. Ask the host how to play.
+            </p>
+          )}
         </section>
       )}
 

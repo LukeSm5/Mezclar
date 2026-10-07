@@ -18,12 +18,16 @@ function sanitizeCode(raw: string): string {
 export default function LandingPage() {
   const navigate = useNavigate();
   const [code, setCode] = useState("");
+  const [error, setError] = useState("");
 
   const isComplete = code.length === JOIN_CODE_LENGTH;
 
   function handleSubmit(event: FormEvent) {
     event.preventDefault();
-    if (!isComplete) return;
+    if (!isComplete) {
+      setError(code ? `Game codes are ${JOIN_CODE_LENGTH} characters long.` : "Please enter a game code.");
+      return;
+    }
     navigate(`/join/${code}`);
   }
 
@@ -42,7 +46,10 @@ export default function LandingPage() {
             id="join-code"
             className="landing__code"
             value={code}
-            onChange={(event) => setCode(sanitizeCode(event.target.value))}
+            onChange={(event) => {
+              setCode(sanitizeCode(event.target.value));
+              setError("");
+            }}
             placeholder="AB12"
             inputMode="text"
             autoComplete="off"
@@ -52,10 +59,11 @@ export default function LandingPage() {
             maxLength={JOIN_CODE_LENGTH}
             autoFocus
           />
-          <button className="landing__submit" type="submit" disabled={!isComplete}>
+          <button className="landing__submit" type="submit">
             Join game
           </button>
         </form>
+        {error && <p role="alert">{error}</p>}
 
         <button
           className="landing__host"
