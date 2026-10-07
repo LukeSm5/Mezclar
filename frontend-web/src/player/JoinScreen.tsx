@@ -122,6 +122,28 @@ export default function JoinScreen() {
     }
   }
 
+  if (!loading && !session) {
+    return (
+      <main className="join">
+        <div className="join__inner">
+          <header className="join__header">
+            <p className="join__eyebrow">Game not found</p>
+
+            <h1 className="join__title">{code}</h1>
+
+            <p className="join__welcome">
+              The game you are looking for doesn't exist. Check the code and try again.
+            </p>
+          </header>
+
+          <Link className="join__submit join__home" to="/">
+            Back to home
+          </Link>
+        </div>
+      </main>
+    );
+  }
+
   return (
     <main className="join">
       <div className="join__inner">

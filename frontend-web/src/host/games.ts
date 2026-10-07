@@ -1,8 +1,3 @@
-/**
- * Placeholder game catalog. These are stand-ins so the create-game page has
- * something real to render — replace with a fetch from the backend once a
- * game registry exists there.
- */
 export interface GameSummary {
   id: string;
   name: string;

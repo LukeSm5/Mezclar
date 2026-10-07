@@ -142,6 +142,13 @@
   cursor: default;
 }
 
+.join__home {
+  width: 100%;
+  box-sizing: border-box;
+  text-align: center;
+  text-decoration: none;
+}
+
 /* Error message */
 
 .join__error {
