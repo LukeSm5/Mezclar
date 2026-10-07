@@ -17,6 +17,11 @@ interface GameStartedMessage {
   game_id: string;
 }
 
+interface LobbyPlayer {
+  player_id: string;
+  name: string;
+}
+
 interface ConnectedMessage {
   type: "connected";
   session_id: string;
@@ -24,6 +29,12 @@ interface ConnectedMessage {
   name: string;
   ready: boolean;
   game_id: string;
+  players: LobbyPlayer[];
+}
+
+interface PlayersUpdatedMessage {
+  type: "players_updated";
+  players: LobbyPlayer[];
 }
 
 export default function PlayerLobby() {
@@ -39,6 +50,7 @@ export default function PlayerLobby() {
   const [playerName, setPlayerName] = useState(state?.playerName ?? "Player");
   const [gameId, setGameId] = useState<string | null>(state?.gameId ?? null);
   const [ready, setReady] = useState(false);
+  const [players, setPlayers] = useState<LobbyPlayer[]>([]);
   const [saving, setSaving] = useState(false);
 
   const [connectionStatus, setConnectionStatus] = useState(
@@ -86,6 +98,13 @@ export default function PlayerLobby() {
           setPlayerName(connectedMessage.name);
           setReady(connectedMessage.ready);
           setGameId(connectedMessage.game_id);
+          setPlayers(connectedMessage.players);
+        }
+        if (message.type === "players_updated") {
+          const playersUpdatedMessage =
+            message as PlayersUpdatedMessage;
+
+          setPlayers(playersUpdatedMessage.players);
         }
         if (message.type === "game_started") {
           const gameStartedMessage =
@@ -113,6 +132,7 @@ export default function PlayerLobby() {
       setConnectionStatus("Connection error");
       setError("Unable to connect to the game server.");
       setGameId(null);
+      setPlayers([]);
     };
 
     websocket.onclose = (event) => {
@@ -124,6 +144,7 @@ export default function PlayerLobby() {
       setConnectionStatus("Disconnected");
       setError("Lost connection to the game server.");
       setGameId(null);
+      setPlayers([]);
     };
 
     return () => {
@@ -275,6 +296,41 @@ export default function PlayerLobby() {
         >
           Connection: {connectionStatus}
         </p>
+      </section>
+
+      <section
+        style={{
+          margin: "24px 0",
+          padding: 24,
+          border: "1px solid var(--border)",
+          borderRadius: 12,
+          textAlign: "left",
+        }}
+      >
+        <h2 style={{ marginTop: 0, textAlign: "center" }}>
+          Players ({players.length})
+        </h2>
+
+        {players.length > 0 ? (
+          <ul
+            style={{
+              margin: 0,
+              paddingLeft: 24,
+              lineHeight: 1.6,
+            }}
+          >
+            {players.map((player) => (
+              <li key={player.player_id}>
+                {player.name}
+                {player.player_id === playerId ? " (you)" : ""}
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p style={{ margin: 0, color: "var(--text-muted)" }}>
+            No players to show yet.
+          </p>
+        )}
       </section>
 
       {error && (

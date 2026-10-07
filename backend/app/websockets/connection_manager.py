@@ -57,6 +57,7 @@ class ConnectionManager:
         self,
         session_id: str,
         message: dict,
+        exclude: str | None = None,
     ) -> None:
         connections = self.active_connections.get(
             session_id,
@@ -66,6 +67,9 @@ class ConnectionManager:
         disconnected_players: list[str] = []
 
         for player_id, websocket in connections.items():
+            if player_id == exclude:
+                continue
+
             try:
                 await websocket.send_json(message)
             except Exception:

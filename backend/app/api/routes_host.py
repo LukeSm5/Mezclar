@@ -15,6 +15,7 @@ from backend.app.api import SessionCode
 from backend.app.websockets.connection_manager import (
     connection_manager,
 )
+from backend.app.websockets.handlers import broadcast_roster
 
 router = APIRouter()
 
@@ -121,11 +122,12 @@ async def kick_player(session_id: str, request: KickPlayerRequest) -> dict:
         {"type": "kicked", "session_id": session_id},
     )
     await connection_manager.disconnect_player(session_id, request.player_id)
+    await broadcast_roster(session)
 
     return { "session_id": session.session_id }
 
 @router.post("/session/{session_id}/hide")
-def hide_player(session_id: str, request: HidePlayerRequest) -> SessionPlayerResponse:
+async def hide_player(session_id: str, request: HidePlayerRequest) -> SessionPlayerResponse:
     session = get_session(session_id)
 
     if not session:
@@ -141,5 +143,7 @@ def hide_player(session_id: str, request: HidePlayerRequest) -> SessionPlayerRes
             status_code=404,
             detail=str(error),
         )
+
+    await broadcast_roster(session)
 
     return SessionPlayerResponse(player_id = player.player_id, name = player.name, ready = player.ready, hidden = player.hidden)

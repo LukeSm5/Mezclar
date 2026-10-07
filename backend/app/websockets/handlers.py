@@ -6,6 +6,30 @@ from backend.app.websockets.connection_manager import (
 )
 
 
+def public_players(session: Session) -> list[dict]:
+    return [
+        {
+            "player_id": player.player_id,
+            "name": "Hidden player" if player.hidden else player.name,
+        }
+        for player in session.players.values()
+    ]
+
+
+async def broadcast_roster(
+    session: Session,
+    exclude: str | None = None,
+) -> None:
+    await connection_manager.broadcast_to_session(
+        session_id=session.session_id,
+        message={
+            "type": "players_updated",
+            "players": public_players(session),
+        },
+        exclude=exclude,
+    )
+
+
 async def handle_join(
     websocket: WebSocket,
     session: Session,
@@ -32,8 +56,11 @@ async def handle_join(
             "name": player.name,
             "ready": player.ready,
             "game_id": session.settings.get("gameId"),
+            "players": public_players(session),
         }
     )
+
+    await broadcast_roster(session, exclude=player_id)
 
     if session.game_started:
         await websocket.send_json({
