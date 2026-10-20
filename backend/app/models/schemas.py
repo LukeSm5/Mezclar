@@ -9,6 +9,9 @@ class RegenerateNameRequest(BaseModel):
 class ToggleAutoNamesRequest(BaseModel):
     enabled: bool
 
+class ToggleProfanityFilterRequest(BaseModel):
+    enabled: bool
+
 class JoinSessionRequest(BaseModel):
     model_config = ConfigDict(str_strip_whitespace=True, extra="forbid")
 

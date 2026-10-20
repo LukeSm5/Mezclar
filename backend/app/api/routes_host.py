@@ -24,6 +24,11 @@ def toggle_auto_names(session_id: str, request: ToggleAutoNamesRequest) -> None:
     session = get_or_create_session(session_id)
     session.set_auto_generate(request.enabled)
 
+@router.post("/session/{session_id}/toggle-profanity-filter")
+def toggle_profanity_filter(session_id: str, request: ToggleAutoNamesRequest) -> None:
+    session = get_or_create_session(session_id)
+    session.set_profanity_filter(request.enabled)
+
 @router.post("/session", response_model=SessionResponse)
 def create_session(request: CreateSessionRequest | None = None) -> SessionResponse:
     try:

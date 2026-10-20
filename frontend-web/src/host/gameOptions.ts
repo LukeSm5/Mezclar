@@ -15,13 +15,6 @@ export interface GameOptionDef {
 
 export const GAME_OPTIONS: GameOptionDef[] = [
   {
-    id: "cleanWordsOnly",
-    label: "Clean words only",
-    description:
-      "Restricts generated player names and submitted text to a family-friendly wordlist.",
-    defaultValue: true,
-  },
-  {
     id: "autoGenerateNames",
     label: "Auto-generate player names",
     description:
@@ -33,7 +26,7 @@ export const GAME_OPTIONS: GameOptionDef[] = [
     label: "Profanity filter",
     description:
       "Filters out offensive language from submitted text.",
-    defaultValue: false,
+    defaultValue: true,
   }
 ];
 
