@@ -28,6 +28,13 @@ export const GAME_OPTIONS: GameOptionDef[] = [
       "Assigns each player a randomly generated name instead of letting them pick their own.",
     defaultValue: false,
   },
+  {
+    id: "profanityFilter",
+    label: "Profanity filter",
+    description:
+      "Filters out offensive language from submitted text.",
+    defaultValue: false,
+  }
 ];
 
 export type GameOptionValues = Record<string, boolean>;
