@@ -28,6 +28,7 @@ export interface SessionPlayer {
 
 export interface JoinSessionResponse extends SessionPlayer {
   session_id: string;
+  game_started: boolean;
 }
 
 export interface UpdateReadyStatusRequest {
@@ -50,6 +51,7 @@ export interface SessionResponse {
   player_count: number;
   players: SessionPlayer[];
   auto_generate_names: boolean;
+  allow_late_join: boolean;
   game_started: boolean;
   game_id: string | null;
   minimum_players: number | null;
