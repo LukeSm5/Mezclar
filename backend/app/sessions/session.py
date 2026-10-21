@@ -68,6 +68,24 @@ class Session:
     def get_player(self, player_id: str) -> Player | None:
         return self.players.get(player_id)
 
+    def submit_answer(self, player_id: str, answer: str) -> None:
+        if not self.game_started:
+            raise ValueError("The game has not started.")
+
+        if self.game_id != "quiplash":
+            raise ValueError("This game does not accept quip answers.")
+
+        if self.get_player(player_id) is None:
+            raise ValueError("Player not found.")
+
+        if not answer.strip():
+            raise ValueError("Answer cannot be empty.")
+
+        if len(answer) > 200:
+            raise ValueError("Answer cannot exceed 200 characters.")
+
+        self.answers[player_id] = answer
+
     def configure_game(self, game_id: str, minimum_players: int, maximum_players: int) -> None:
         if self.game_started:
             raise ValueError("Cannot configure a game that has started.")
@@ -153,3 +171,19 @@ class Session:
             raise ValueError(f"Player with ID {player_id} does not exist.")
         player.hidden = hidden
         return player
+
+    def advance_round(self) -> None:
+        if not self.game_started:
+            raise ValueError("The game has not started.")
+
+        if self.game_id != "quiplash":
+            raise ValueError("This game does not support rounds.")
+
+        next_round = self.current_round + 1
+
+        if next_round > len(QUIPLASH_PROMPTS):
+            raise ValueError("There are no more rounds.")
+
+        self.current_round = next_round
+        self.current_prompt = QUIPLASH_PROMPTS[next_round - 1]
+        self.answers.clear()

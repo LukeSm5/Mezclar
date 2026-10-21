@@ -44,6 +44,7 @@ class SessionResponse(BaseModel):
     maximum_players: int | None
     current_round: int
     current_prompt: str | None
+    answers: dict[str, str]
 
 class StartGameRequest(BaseModel):
     game_id: str
@@ -71,3 +72,9 @@ class KickPlayerRequest(BaseModel):
 class HidePlayerRequest(BaseModel):
     player_id: str
     hidden: bool
+
+class SubmitAnswerRequest(BaseModel):
+    model_config = ConfigDict(str_strip_whitespace=True, extra="forbid")
+
+    player_id: str = Field(min_length=1)
+    answer: str = Field(min_length=1, max_length=200)

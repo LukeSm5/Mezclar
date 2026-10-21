@@ -1,4 +1,4 @@
-import { Link, useLocation, useParams } from "react-router-dom";
+import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 import { GAMES } from "./games";
 import type { GameOptionValues } from "./gameOptions";
 import { useEffect, useState } from "react";
@@ -13,6 +13,7 @@ interface LobbyState {
 export default function LobbyView() {
   const { state } = useLocation() as { state: LobbyState | null };
   const { code } = useParams<{ code: string }>();
+  const navigate = useNavigate();
 
   const sessionId = code ?? state?.sessionId;
 
@@ -148,6 +149,8 @@ export default function LobbyView() {
             }
           : previous
       );
+
+      navigate(`/host/game/${sessionId}`);
     } catch (error) {
       console.error("Failed to start game:", error);
 

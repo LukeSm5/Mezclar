@@ -6,6 +6,7 @@ from backend.app.models.schemas import (
     SubmitNameRequest,
     UpdateReadyStatusRequest,
     SessionPlayerResponse,
+    SubmitAnswerRequest
 )
 
 from fastapi import APIRouter, HTTPException
@@ -79,3 +80,26 @@ def update_ready_status(session_id: str, player_id: str, request: UpdateReadySta
     except ValueError as error:
         raise HTTPException(status_code=404, detail=str(error)) from error
     return SessionPlayerResponse(player_id=player.player_id, name=player.name, ready=player.ready, hidden=player.hidden)
+
+@router.post("/session/{session_id}/submit-answer")
+def submit_answer(
+    session_id: str,
+    request: SubmitAnswerRequest,
+) -> dict[str, str]:
+    session = get_session(session_id)
+
+    if session is None:
+        raise HTTPException(
+            status_code=404,
+            detail="Session not found",
+        )
+
+    try:
+        session.submit_answer(request.player_id, request.answer)
+    except ValueError as error:
+        raise HTTPException(
+            status_code=400,
+            detail=str(error),
+        )
+
+    return {"message": "Answer submitted successfully."}

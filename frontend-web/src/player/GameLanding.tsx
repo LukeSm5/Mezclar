@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { getSession, type SessionResponse } from "../api/client";
+import { getSession, playerSocketUrl, type SessionResponse } from "../api/client";
 import QuipInput from "./QuipInput";
 
 interface GameLandingState {
@@ -15,7 +15,9 @@ export default function GameLanding() {
     state: GameLandingState | null;
   };
 
-  const sessionId = state?.sessionId;
+  const { playerId, playerName, sessionId, gameId } = state || {};
+
+  // const sessionId = state?.sessionId;
 
   const [session, setSession] = useState<SessionResponse | null>(null);
   const [error, setError] = useState("");
@@ -39,6 +41,44 @@ export default function GameLanding() {
       })
       .finally(() => setLoading(false));
   }, [sessionId]);
+
+  useEffect(() => {
+    if (!sessionId || !playerId) {
+      return;
+    }
+
+    const websocket = new WebSocket(
+      playerSocketUrl(sessionId, playerId),
+    );
+
+    websocket.onmessage = (event) => {
+      try {
+        const message = JSON.parse(event.data);
+
+        if (message.type === "round_updated") {
+          getSession(sessionId)
+            .then(setSession)
+            .catch((error: unknown) => {
+              setError(
+                error instanceof Error
+                  ? error.message
+                  : "Could not load the next round.",
+              );
+            });
+        }
+      } catch (error) {
+        console.error("Failed to process WebSocket message:", error);
+      }
+    };
+
+    websocket.onerror = (event) => {
+      console.error("Game updates WebSocket error:", event);
+    };
+
+    return () => {
+      websocket.close();
+    };
+  }, [sessionId, playerId]);
 
   return (
     <main
@@ -72,7 +112,13 @@ export default function GameLanding() {
         <section>
           <h2>Round {session.current_round}</h2>
           <p>{session.current_prompt ?? "No prompt selected yet."}</p>
-          {session.game_id === "quiplash" && <QuipInput key={session.current_round} />}
+          {session.game_id === "quiplash" && playerId && sessionId && (
+            <QuipInput
+              key={session.current_round}
+              sessionId={sessionId}
+              playerId={playerId}
+            />
+          )}
         </section>
       )}
 

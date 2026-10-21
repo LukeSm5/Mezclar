@@ -56,6 +56,7 @@ export interface SessionResponse {
   maximum_players: number | null;
   current_round: number;
   current_prompt: string;
+  answers: Record<string, string>;
 }
 
 export interface KickPlayerRequest {

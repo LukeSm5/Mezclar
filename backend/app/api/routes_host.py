@@ -55,7 +55,7 @@ def get_session_info(session_id: SessionCode) -> SessionResponse:
         settings=session.settings, auto_generate_names=session.auto_generate_names,
         game_id=session.game_id, minimum_players=session.minimum_players,
         maximum_players=session.maximum_players, current_round=session.current_round,
-        current_prompt=session.current_prompt,
+        current_prompt=session.current_prompt, answers=session.answers
     )
 
 @router.post("/session/{session_id}/start")
@@ -153,3 +153,39 @@ async def hide_player(session_id: str, request: HidePlayerRequest) -> SessionPla
     await broadcast_roster(session)
 
     return SessionPlayerResponse(player_id = player.player_id, name = player.name, ready = player.ready, hidden = player.hidden)
+
+
+
+@router.post("/session/{session_id}/advance-round")
+async def advance_round(session_id: str) -> dict[str, str | int]:
+    session = get_session(session_id)
+
+    if not session:
+        raise HTTPException(
+            status_code=404,
+            detail="Session not found",
+        )
+
+    try:
+        session.advance_round()
+    except ValueError as error:
+        raise HTTPException(
+            status_code=400,
+            detail=str(error),
+        )
+
+    await connection_manager.broadcast_to_session(
+        session_id=session.session_id,
+        message={
+            "type": "round_updated",
+            "session_id": session.session_id,
+            "current_round": session.current_round,
+            "current_prompt": session.current_prompt,
+        },
+    )
+
+    return {
+        "session_id": session.session_id,
+        "current_round": session.current_round,
+        "current_prompt": session.current_prompt or "",
+    }

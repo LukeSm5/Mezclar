@@ -102,3 +102,33 @@ export async function hidePlayer(code: string, playerId: string, hidden: boolean
   }));
   return player;
 }
+
+
+export async function submitAnswer(
+  sessionId: string,
+  playerId: string,
+  answer: string,
+): Promise<void> {
+  await apiResponse(await fetch(
+    `/api/session/${sessionId}/submit-answer`,
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        player_id: playerId,
+        answer,
+      }),
+    },
+  ));
+}
+
+export async function advanceRound(
+  sessionId: string,
+): Promise<void> {
+  await apiResponse(await fetch(
+    `/api/session/${sessionId}/advance-round`,
+    {
+      method: "POST",
+    },
+  ));
+}

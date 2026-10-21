@@ -1,15 +1,51 @@
 
 import { useState } from "react";
+import { submitAnswer } from "../api/client";
 
 const MAX_QUIP_LENGTH = 200;
 
-export default function QuipInput() {
+type QuipInputProps = {
+  sessionId: string;
+  playerId: string;
+};
+
+export default function QuipInput({
+  sessionId,
+  playerId,
+}: QuipInputProps) {
   const [quip, setQuip] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [message, setMessage] = useState("");
+  const [hasSubmitted, setHasSubmitted] = useState(false);
 
   const isValid = quip.trim().length > 0;
 
   function handleChange(value: string) {
     setQuip(value.slice(0, MAX_QUIP_LENGTH));
+    setMessage("");
+  }
+
+  async function handleSubmit() {
+    if (!isValid || isSubmitting || hasSubmitted) {
+      return;
+    }
+
+    setIsSubmitting(true);
+    setMessage("");
+
+    try {
+      await submitAnswer(sessionId, playerId, quip.trim());
+      setHasSubmitted(true);
+      setMessage("Your quip was submitted!");
+    } catch (error) {
+      setMessage(
+        error instanceof Error
+          ? error.message
+          : "Could not submit your quip. Please try again.",
+      );
+    } finally {
+      setIsSubmitting(false);
+    }
   }
 
   return (
@@ -22,6 +58,7 @@ export default function QuipInput() {
         onChange={(event) => handleChange(event.target.value)}
         maxLength={MAX_QUIP_LENGTH}
         rows={5}
+        disabled={hasSubmitted || isSubmitting}
         placeholder="Type your funniest answer..."
         aria-describedby="quip-counter quip-validation"
         style={{
@@ -42,10 +79,20 @@ export default function QuipInput() {
       </p>
 
       <p id="quip-validation" aria-live="polite">
-        {!isValid
-            ? "Enter a quip before submitting."
-            : ""}
+        {message || (!isValid ? "Enter a quip before submitting." : "")}
       </p>
+
+      <button
+        type="button"
+        onClick={handleSubmit}
+        disabled={!isValid || isSubmitting || hasSubmitted}
+      >
+        {isSubmitting
+          ? "Submitting..."
+          : hasSubmitted
+            ? "Submitted"
+            : "Submit quip"}
+      </button>
     </section>
   );
 }
