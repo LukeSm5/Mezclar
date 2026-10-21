@@ -16,6 +16,7 @@ class Session:
         self.auto_generate_names: bool = isinstance(options, dict) and options.get("autoGenerateNames") is True
         self.used_names: set[str] = set()
         self.use_profanity_filter: bool = isinstance(options, dict) and options.get("useProfanityFilter") is True
+        self.allow_late_join: bool = isinstance(options, dict) and options.get("allowLateJoin") is True
 
         # Game configuration
         self.game_id: str | None = None
@@ -28,6 +29,9 @@ class Session:
 
     def set_profanity_filter(self, enabled: bool) -> None:
         self.use_profanity_filter = enabled
+
+    def set_allow_late_join(self, enabled: bool) -> None:
+        self.allow_late_join = enabled
 
     def add_used_name(self, name: str) -> None:
         self.used_names.add(name)

@@ -27,6 +27,13 @@ export const GAME_OPTIONS: GameOptionDef[] = [
     description:
       "Filters out offensive language from submitted text.",
     defaultValue: true,
+  },
+  {
+    id: "allowLateJoin",
+    label: "Allow late joining",
+    description:
+      "Lets players join or rejoin after the game has started.",
+    defaultValue: true,
   }
 ];
 

@@ -53,7 +53,14 @@ def join_session(
             name=player.name,
             session_id=session_id, 
             ready=player.ready,
-            hidden=player.hidden
+            hidden=player.hidden,
+            game_started=session.game_started,
+        )
+
+    if session.game_started and not session.allow_late_join:
+        raise HTTPException(
+            status_code=403,
+            detail="This game is already in progress and isn't accepting new players.",
         )
 
     try:
@@ -67,7 +74,7 @@ def join_session(
             detail=str(error),
         )
 
-    return JoinSessionResponse(player_id=player.player_id, name=player.name, session_id=session_id, ready=player.ready, hidden=player.hidden)
+    return JoinSessionResponse(player_id=player.player_id, name=player.name, session_id=session_id, ready=player.ready, hidden=player.hidden, game_started=session.game_started)
 
 @router.patch("/session/{session_id}/players/{player_id}/ready", response_model=SessionPlayerResponse)
 def update_ready_status(session_id: str, player_id: str, request: UpdateReadyStatusRequest) -> SessionPlayerResponse:

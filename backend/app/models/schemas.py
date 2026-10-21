@@ -24,6 +24,7 @@ class JoinSessionResponse(BaseModel):
     session_id: str
     ready: bool
     hidden: bool
+    game_started: bool
 
 class SessionPlayerResponse(BaseModel):
     player_id: str
@@ -39,6 +40,7 @@ class SessionResponse(BaseModel):
     host_name: str
     settings: dict[str, JsonValue]
     auto_generate_names: bool
+    allow_late_join: bool
     game_id: str | None
     minimum_players: int | None
     maximum_players: int | None
