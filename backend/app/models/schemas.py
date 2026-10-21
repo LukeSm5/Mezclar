@@ -42,6 +42,8 @@ class SessionResponse(BaseModel):
     game_id: str | None
     minimum_players: int | None
     maximum_players: int | None
+    current_round: int
+    current_prompt: str | None
 
 class StartGameRequest(BaseModel):
     game_id: str

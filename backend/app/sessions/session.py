@@ -3,6 +3,7 @@ from pydantic import JsonValue
 
 from backend.app.naming.generator import generate_unique_name
 from backend.app.sessions.player import Player
+from backend.app.games.quiplash.prompts import QUIPLASH_PROMPTS
 
 class Session:
     def __init__(self, session_id: str, host_name: str = "Host", settings: dict[str, JsonValue] | None = None):
@@ -22,6 +23,10 @@ class Session:
         self.minimum_players: int | None = None
         self.maximum_players: int | None = None
         self.game_started: bool = False
+        # Gameplay state
+        self.current_round: int = 0
+        self.current_prompt: str | None = None
+        self.answers: dict[str, str] = {}
 
     def set_auto_generate(self, enabled: bool) -> None:
         self.auto_generate_names = enabled
@@ -115,6 +120,8 @@ class Session:
                 "have not been met."
             )
 
+        self.current_prompt = QUIPLASH_PROMPTS[0]
+        self.current_round = 1
         self.game_started = True
 
     def regenerate_name(self, player_id: str) -> str: 

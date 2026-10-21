@@ -54,6 +54,8 @@ export interface SessionResponse {
   game_id: string | null;
   minimum_players: number | null;
   maximum_players: number | null;
+  current_round: number;
+  current_prompt: string;
 }
 
 export interface KickPlayerRequest {

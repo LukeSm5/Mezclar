@@ -54,7 +54,8 @@ def get_session_info(session_id: SessionCode) -> SessionResponse:
         game_started=session.game_started, host_name=session.host_name,
         settings=session.settings, auto_generate_names=session.auto_generate_names,
         game_id=session.game_id, minimum_players=session.minimum_players,
-        maximum_players=session.maximum_players,
+        maximum_players=session.maximum_players, current_round=session.current_round,
+        current_prompt=session.current_prompt,
     )
 
 @router.post("/session/{session_id}/start")
