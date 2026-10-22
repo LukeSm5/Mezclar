@@ -1,7 +1,7 @@
 from copy import deepcopy
 from pydantic import JsonValue
 
-from backend.app.naming.generator import generate_unique_name
+from backend.app.naming.generator import generate_unique_name, validate_name
 from backend.app.sessions.player import Player
 
 class Session:
@@ -43,6 +43,10 @@ class Session:
         if requested_name is not None:
             if requested_name.casefold() in {name.casefold() for name in self.used_names}:
                 raise ValueError("That name is already taken.")
+            if self.use_profanity_filter == True:
+                valid = validate_name(requested_name)
+                if not valid:
+                    raise ValueError("Name contains inappropriate content.")
             self.add_used_name(requested_name)
             return requested_name
 

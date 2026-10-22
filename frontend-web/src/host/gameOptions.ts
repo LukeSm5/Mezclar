@@ -22,7 +22,7 @@ export const GAME_OPTIONS: GameOptionDef[] = [
     defaultValue: false,
   },
   {
-    id: "profanityFilter",
+    id: "useProfanityFilter",
     label: "Profanity filter",
     description:
       "Filters out offensive language from submitted text.",

@@ -10,7 +10,7 @@ from backend.app.models.schemas import (
 
 from fastapi import APIRouter, HTTPException
 from backend.app.sessions.registry import get_or_create_session, get_session
-from backend.app.naming.generator import generate_unique_name
+from backend.app.naming.generator import generate_unique_name, validate_name
 
 router = APIRouter()
 
@@ -48,6 +48,13 @@ def join_session(
     if request.player_id in session.players:
         player = session.get_player(request.player_id)
 
+    if session.use_profanity_filter:
+        valid = validate_name(request.name)
+        if not valid:
+            raise HTTPException(
+                status_code=400,
+                detail="Name contains inappropriate content.",
+            )
         return JoinSessionResponse(
             player_id=player.player_id,
             name=player.name,
