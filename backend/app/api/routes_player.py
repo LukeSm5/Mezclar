@@ -1,3 +1,5 @@
+from httpx import request
+
 from backend.app.models.schemas import (
     GenerateNameResponse, 
     RegenerateNameRequest,
@@ -44,10 +46,6 @@ def join_session(
             status_code=404,
             detail="Session not found",
         )
-
-    if request.player_id in session.players:
-        player = session.get_player(request.player_id)
-
     if session.use_profanity_filter:
         valid = validate_name(request.name)
         if not valid:
@@ -55,6 +53,11 @@ def join_session(
                 status_code=400,
                 detail="Name contains inappropriate content.",
             )
+        
+    if request.player_id in session.players:
+        player = session.get_player(request.player_id)
+
+    
         return JoinSessionResponse(
             player_id=player.player_id,
             name=player.name,
