@@ -6,6 +6,8 @@ from backend.app.models.schemas import (
     SessionPlayerResponse,
     SessionResponse,
     StartGameRequest,
+    ModPlayerRequest,
+    UnmodPlayerRequest,
 )
 from fastapi import APIRouter, HTTPException
 from backend.app.sessions.registry import get_or_create_session, get_session
@@ -153,3 +155,11 @@ async def hide_player(session_id: str, request: HidePlayerRequest) -> SessionPla
     await broadcast_roster(session)
 
     return SessionPlayerResponse(player_id = player.player_id, name = player.name, ready = player.ready, hidden = player.hidden)
+
+@router.post("/session/{session_id}/mod")
+async def mod_player(session_id: str, request: ModPlayerRequest) -> SessionPlayerResponse:
+    pass
+
+@router.post("/session/{session_id}/unmod")
+async def unmod_player(session_id: str, request: UnmodPlayerRequest) -> SessionPlayerResponse:
+    pass

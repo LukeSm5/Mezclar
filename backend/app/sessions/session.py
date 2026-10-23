@@ -154,3 +154,17 @@ class Session:
             raise ValueError(f"Player with ID {player_id} does not exist.")
         player.hidden = hidden
         return player
+
+    def mod_player(self, player_id: str) -> Player:
+        player = self.get_player(player_id)
+        if player is None:
+            raise ValueError(f"Player with ID {player_id} does not exist.")
+        player.is_mod = True
+        return player
+
+    def unmod_player(self, player_id: str) -> Player:
+        player = self.get_player(player_id)
+        if player is None:
+            raise ValueError(f"Player with ID {player_id} does not exist.")
+        player.is_mod = False
+        return player

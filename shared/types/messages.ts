@@ -66,3 +66,11 @@ export interface HidePlayerRequest {
   player_id: string;
   hidden: boolean;
 }
+
+export interface ModPlayerRequest {
+  player_id: string;
+}
+
+export interface UnmodPlayerRequest {
+  player_id: string;
+}

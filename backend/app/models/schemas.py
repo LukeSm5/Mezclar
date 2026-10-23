@@ -71,3 +71,9 @@ class KickPlayerRequest(BaseModel):
 class HidePlayerRequest(BaseModel):
     player_id: str
     hidden: bool
+
+class ModPlayerRequest(BaseModel):
+    player_id: str
+
+class UnmodPlayerRequest(BaseModel):
+    player_id: str
