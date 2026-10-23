@@ -226,6 +226,9 @@ export default function LobbyView() {
       setActionError(error instanceof Error ? error.message : "Failed to hide player.");
     }
   }
+  async function handleMod(player: SessionPlayer) {
+    return alert("Mod functionality is not implemented yet.");
+  }
   return (
     <main
       style={{
@@ -362,6 +365,9 @@ export default function LobbyView() {
                     </button>
                     <button type = "button" onClick = {() => handleHide(player)}>
                       {player.hidden ? "Show" : "Hide"}
+                    </button>
+                    <button type = "button" onClick = {() => handleMod(player)}>
+                      Mod
                     </button>
                   </li>
                 ))}
